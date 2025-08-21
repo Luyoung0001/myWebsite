@@ -295,7 +295,8 @@
         <div class="brand"><span class="dot"></span> <span>~/hacker.land</span></div>
         <div class="navlinks">
             <a href="https://github.com/Luyoung0001" target="_blank" rel="noopener">GitHub</a>
-            <a href="https://space.bilibili.com/19872805?spm_id_from=333.1007.0.0" target="_blank" rel="noopener">Bilibili</a>
+            <a href="https://space.bilibili.com/19872805?spm_id_from=333.1007.0.0" target="_blank"
+                rel="noopener">Bilibili</a>
             <a href="https://thoughts-519.pages.dev/" target="_blank" rel="noopener">Thoughts</a>
             <a href="https://blog.luliang.website/" target="_blank" rel="noopener">Blog</a>
             <a href="mailto:791975457@qq.com">Email</a>
@@ -341,7 +342,7 @@
                             aria-label="command input"></div>
                 </div>
                 <div class="help">提示：试试
-                    <code>ls</code>、<code>ls medium</code>、<code>use blog</code>、<code>cat hello-world</code>、<code>clear</code>
+                    <code>ls</code>、<code>ls medium</code>、<code>use blog</code>、<code>use projects</code>、<code>cat hello-world</code>、<code>clear</code>
                 </div>
             </div>
         </section>
@@ -355,19 +356,17 @@
                 label: "个人博客",
                 posts: [] // 将在运行时从 posts.json 动态填充
             },
-            medium: {
-                label: "Medium",
+            projects: {
+                label: "项目",
                 posts: [
-                    { id: "ai-edge", title: "AI on the Edge: 2025", url: "https://medium.com/@you/ai-on-the-edge-2025" },
-                    { id: "web-sec", title: "Web 安全清单（简版）", url: "https://medium.com/@you/web-security-checklist" },
+                    // 👇 这里填你的项目清单（id 用于 cat；url 为项目主页或仓库）
+                    { id: "debugger", title: "my_debugger", url: "https://github.com/Luyoung0001/mydebugger" },
+                    { id: "cpp_design", title: "练习C++11的例子", url: "https://github.com/Luyoung0001/cpp_design" },
+                    { id: "trans_api", title: "golang增删改查后端", url: "https://github.com/Luyoung0001/trans_api" },
+                    { id: "translator", title: "cmd_line_tool前端", url: "https://github.com/Luyoung0001/translate_all" },
+                    { id: "CPU", title: "手撕6级流水线处理器,linux 启动!", url: "https://github.com/Luyoung0001/Loongarch_1"},
                 ]
             },
-            zhihu: {
-                label: "知乎专栏",
-                posts: [
-                    { id: "paper-notes", title: "论文阅读：Diffusion 模型", url: "https://zhuanlan.zhihu.com/p/1234567890" }
-                ]
-            }
         }
         // =============
         // 终端逻辑
@@ -540,9 +539,6 @@
                 ];
             }
         }
-
-
-        // 初始输出
         // 初始输出
         async function boot() {
             document.getElementById('year').textContent = new Date().getFullYear();
@@ -552,8 +548,6 @@
             list();
             cmd.focus();
         }
-
-
         window.addEventListener('load', boot);
     </script>
 </body>
