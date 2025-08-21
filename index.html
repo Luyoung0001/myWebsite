@@ -1,426 +1,732 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>~ hacker.land :: Luyoung</title>
-  <meta name="description" content="一个带有交互式终端风格的个人网站" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
-  <style>
-    :root{
-      --bg:#0b0f10; --panel:#0f1517; --text:#c8facc; --dim:#6fbf73;
-      --brand:#66ffcc; --accent:#00e5a8; --danger:#ff6b6b; --muted:#1b2426; --nav:#081314;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0; background:radial-gradient(ellipse at 50% -10%,#0e1618 0%,var(--bg) 55%);
-      color:var(--text);
-      font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
-      display:grid; grid-template-rows:auto 1fr auto; gap:24px; letter-spacing:.1px;
-    }
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>~ hacker.land :: Luyoung</title>
+    <meta name="description" content="一个带有交互式终端风格的个人网站" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0b0f10;
+            --panel: #0f1517;
+            --text: #c8facc;
+            --dim: #6fbf73;
+            --brand: #66ffcc;
+            --accent: #00e5a8;
+            --danger: #ff6b6b;
+            --muted: #1b2426;
+            --nav: #081314;
+        }
 
-    /* 顶部导航（更轻） */
-    .nav{
-      position:sticky; top:0; z-index:10; background:rgba(8,19,20,.85); backdrop-filter:blur(6px);
-      border-bottom:1px solid var(--muted); padding:8px 16px; display:flex; align-items:center; justify-content:space-between;
-    }
-    .brand{display:flex; align-items:center; gap:10px; font-weight:800; color:var(--brand)}
-    .brand .dot{width:10px; height:10px; background:var(--accent); border-radius:50%; box-shadow:0 0 12px var(--accent)}
-    .navlinks{display:flex; gap:14px; flex-wrap:wrap}
-    .navlinks a{
-      color:var(--text); text-decoration:none; padding:5px 9px; border:1px solid var(--muted);
-      border-radius:10px; background:linear-gradient(180deg,#0b1315,#0a0f10); transition:all .15s ease; font-weight:600; font-size:13px;
-    }
-    .navlinks a:hover{border-color:var(--accent); color:#0b1310; background:var(--accent); box-shadow:0 0 18px rgba(0,229,168,.3)}
-    .navlinks a:focus-visible, input:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:8px}
+        * {
+            box-sizing: border-box
+        }
 
-    .wrap{width:100%; max-width:1100px; margin:0 auto; padding:0 18px 24px; display:grid; gap:22px}
+        html,
+        body {
+            height: 100%
+        }
 
-    .hero{
-      margin-top:8px; padding:18px; border:1px solid var(--muted); border-radius:14px;
-      background:linear-gradient(180deg,rgba(12,19,21,.7),rgba(7,10,11,.8));
-      display:grid; grid-template-columns:1.2fr .8fr; gap:18px; align-items:center;
-    }
-    .hero h1{margin:0 0 10px 0; font-size:clamp(20px,2.4vw,26px); color:var(--brand)}
-    .hero p{margin:0; color:#a3e9a9; opacity:.9}
-    .blink{animation:blink 1.1s steps(2,start) infinite; color:var(--accent)}
-    @keyframes blink{to{visibility:hidden}}
-    @media (prefers-reduced-motion: reduce){ .blink{animation:none} }
-    @media (min-width:901px){ .hero svg{ transform:scale(0.9); transform-origin:center right } }
-    @media (max-width:900px){ .hero{ grid-template-columns:1fr } }
+        body {
+            margin: 0;
+            background: radial-gradient(ellipse at 50% -10%, #0e1618 0%, var(--bg) 55%);
+            color: var(--text);
+            font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            gap: 24px;
+            letter-spacing: .1px;
+        }
 
-    /* 终端 */
-    .terminal{
-      position:relative; border:1px solid var(--muted);
-      background:linear-gradient(180deg,rgba(7,12,13,.9),rgba(4,7,8,.92)),
-                 repeating-linear-gradient(0deg,rgba(102,255,204,.03),rgba(102,255,204,.03) 1px,transparent 1px,transparent 2px);
-      box-shadow:0 0 0 1px rgba(102,255,204,.08) inset, 0 20px 70px rgba(0,0,0,.3);
-      border-radius:14px; overflow:hidden;
-    }
-    .term-head{display:flex; align-items:center; gap:10px; padding:8px 10px; border-bottom:1px solid var(--muted);
-      background:linear-gradient(180deg,#0f1719,#0b1213)}
-    .traffic{display:flex; gap:8px; margin-right:6px}
-    .dot{width:9px; height:9px; border-radius:50%}
-    .dot.red{background:#ff5f56}.dot.yellow{background:#ffbd2e}.dot.green{background:#27c93f}
-    .title{color:#9ce6a2; font-weight:700}
+        /* 顶部导航（更轻） */
+        .nav {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: rgba(8, 19, 20, .85);
+            backdrop-filter: blur(6px);
+            border-bottom: 1px solid var(--muted);
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
 
-    .term-body{padding:16px; height:min(440px,52vh); overflow:auto}
-    .output{white-space:pre-wrap; line-height:1.55}
-    .line{display:flex; align-items:center; gap:8px; margin-top:2px}
-    .prompt{color:#6cf1b5}
-    .path{color:#91ffc9}
-    .input{flex:1; display:flex; align-items:center; gap:8px}
-    .input input{width:100%; background:transparent; outline:none; border:none; color:var(--text); font:inherit; padding:6px 0}
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            color: var(--brand)
+        }
 
-    .help{font-size:12px; color:#93d69a; opacity:.8; margin-top:10px}
+        .brand .dot {
+            width: 10px;
+            height: 10px;
+            background: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 12px var(--accent)
+        }
 
-    table{width:100%; border-collapse:collapse; margin:8px 0}
-    th,td{border-bottom:1px dashed #12352f; padding:6px 4px; text-align:left}
-    th{color:#96ffd2}
-    tr:hover td{background:#0d1718}
+        .navlinks {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap
+        }
 
-    footer{opacity:.7; font-size:12px; text-align:center; padding:6px 0 24px}
+        .navlinks a {
+            color: var(--text);
+            text-decoration: none;
+            padding: 5px 9px;
+            border: 1px solid var(--muted);
+            border-radius: 10px;
+            background: linear-gradient(180deg, #0b1315, #0a0f10);
+            transition: all .15s ease;
+            font-weight: 600;
+            font-size: 13px;
+        }
 
-    /* 隐藏但给读屏用的区域 */
-    .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
-  </style>
+        .navlinks a:hover {
+            border-color: var(--accent);
+            color: #0b1310;
+            background: var(--accent);
+            box-shadow: 0 0 18px rgba(0, 229, 168, .3)
+        }
+
+        .navlinks a:focus-visible,
+        input:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+            border-radius: 8px
+        }
+
+        .wrap {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 18px 24px;
+            display: grid;
+            gap: 22px
+        }
+
+        .hero {
+            margin-top: 8px;
+            padding: 18px;
+            border: 1px solid var(--muted);
+            border-radius: 14px;
+            background: linear-gradient(180deg, rgba(12, 19, 21, .7), rgba(7, 10, 11, .8));
+            display: grid;
+            grid-template-columns: 1.2fr .8fr;
+            gap: 18px;
+            align-items: center;
+        }
+
+        .hero h1 {
+            margin: 0 0 10px 0;
+            font-size: clamp(20px, 2.4vw, 26px);
+            color: var(--brand)
+        }
+
+        .hero p {
+            margin: 0;
+            color: #a3e9a9;
+            opacity: .9
+        }
+
+        .blink {
+            animation: blink 1.1s steps(2, start) infinite;
+            color: var(--accent)
+        }
+
+        /* 帮助列表：两列对齐 */
+        .help-list {
+            margin: 8px 0 0
+        }
+
+        .help-row {
+            display: grid;
+            grid-template-columns: 14ch 1fr;
+            /* 左列宽度可按需调：12–16ch */
+            gap: 12px;
+            align-items: start;
+            line-height: 1.6;
+        }
+
+        .help-row code {
+            color: var(--brand);
+            font-weight: 700
+        }
+
+        .help-row .desc {
+            color: #93d69a;
+        }
+
+        /* 列表表格：固定列宽，标题区自适应 */
+        table.posts {
+            table-layout: fixed;
+        }
+
+        table.posts col.id {
+            width: 14ch;
+        }
+
+        /* id 列定宽 */
+        table.posts col.title {
+            width: auto;
+        }
+
+        /* 标题列吃剩余 */
+        table.posts col.url {
+            width: 7ch;
+        }
+
+        /* “link” 定宽 */
+        .twrap {
+            /* 标题单元格内部：日期 + 标题 */
+            display: flex;
+            gap: 8px;
+            align-items: baseline;
+            min-width: 0;
+        }
+
+        .twrap .date {
+            color: #93d69a;
+            white-space: nowrap;
+            font-weight: 600;
+        }
+
+        .twrap .ttl {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* 如果你更喜欢标题可以换行，把上一行的 white-space 改为 normal 即可 */
+        /* .twrap .ttl { white-space: normal; } */
+
+
+        @keyframes blink {
+            to {
+                visibility: hidden
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .blink {
+                animation: none
+            }
+        }
+
+        @media (min-width:901px) {
+            .hero svg {
+                transform: scale(0.9);
+                transform-origin: center right
+            }
+        }
+
+        @media (max-width:900px) {
+            .hero {
+                grid-template-columns: 1fr
+            }
+        }
+
+        /* 终端 */
+        .terminal {
+            position: relative;
+            border: 1px solid var(--muted);
+            background: linear-gradient(180deg, rgba(7, 12, 13, .9), rgba(4, 7, 8, .92)),
+                repeating-linear-gradient(0deg, rgba(102, 255, 204, .03), rgba(102, 255, 204, .03) 1px, transparent 1px, transparent 2px);
+            box-shadow: 0 0 0 1px rgba(102, 255, 204, .08) inset, 0 20px 70px rgba(0, 0, 0, .3);
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        .term-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            border-bottom: 1px solid var(--muted);
+            background: linear-gradient(180deg, #0f1719, #0b1213)
+        }
+
+        .traffic {
+            display: flex;
+            gap: 8px;
+            margin-right: 6px
+        }
+
+        .dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%
+        }
+
+        .dot.red {
+            background: #ff5f56
+        }
+
+        .dot.yellow {
+            background: #ffbd2e
+        }
+
+        .dot.green {
+            background: #27c93f
+        }
+
+        .title {
+            color: #9ce6a2;
+            font-weight: 700
+        }
+
+        .term-body {
+            padding: 16px;
+            height: min(440px, 52vh);
+            overflow: auto
+        }
+
+        .output {
+            white-space: pre-wrap;
+            line-height: 1.55
+        }
+
+        .line {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 2px
+        }
+
+        .prompt {
+            color: #6cf1b5
+        }
+
+        .path {
+            color: #91ffc9
+        }
+
+        .input {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        .input input {
+            width: 100%;
+            background: transparent;
+            outline: none;
+            border: none;
+            color: var(--text);
+            font: inherit;
+            padding: 6px 0
+        }
+
+        .help {
+            font-size: 12px;
+            color: #93d69a;
+            opacity: .8;
+            margin-top: 10px
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 8px 0
+        }
+
+        th,
+        td {
+            border-bottom: 1px dashed #12352f;
+            padding: 6px 4px;
+            text-align: left
+        }
+
+        th {
+            color: #96ffd2
+        }
+
+        tr:hover td {
+            background: #0d1718
+        }
+
+        footer {
+            opacity: .7;
+            font-size: 12px;
+            text-align: center;
+            padding: 6px 0 24px
+        }
+
+        /* 隐藏但给读屏用的区域 */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+    </style>
 </head>
+
 <body>
-  <!-- 顶部导航 -->
-  <nav class="nav">
-    <div class="brand"><span class="dot"></span><span>~/hacker.land</span></div>
-    <div class="navlinks">
-      <a href="https://github.com/Luyoung0001" target="_blank" rel="noopener">GitHub</a>
-      <a href="https://space.bilibili.com/19872805?spm_id_from=333.1007.0.0" target="_blank" rel="noopener">Bilibili</a>
-      <a href="https://thoughts-519.pages.dev/" target="_blank" rel="noopener">Thoughts</a>
-      <a href="https://blog.luliang.website/" target="_blank" rel="noopener">Blog</a>
-      <a href="mailto:791975457@qq.com">Email</a>
-    </div>
-  </nav>
-
-  <main class="wrap">
-    <section class="hero">
-      <div>
-        <h1>你好，访客 <span class="blink">▉</span></h1>
-        <p>这是一个 <strong>Linux 终端风格</strong> 的个人主页，它支持 <code>ls</code>、<code>cat</code>、<code>open</code>、<code>use</code> 等命令。
-          输入 <code>help</code> 查看所有命令。</p>
-      </div>
-      <div style="justify-self:end; align-self:stretch; display:grid; place-items:center">
-        <svg width="180" height="120" viewBox="0 0 400 260" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-          <rect x="10" y="10" width="380" height="240" rx="12" stroke="#12352f" stroke-width="3" fill="#0a1112"/>
-          <text x="24" y="48" fill="#66ffcc" font-family="JetBrains Mono, monospace" font-size="24">$ sudo make coffee</text>
-          <text x="24" y="90" fill="#93ffd6" font-family="JetBrains Mono, monospace" font-size="24">brewing... done.</text>
-          <circle cx="360" cy="30" r="6" fill="#27c93f"/>
-          <circle cx="336" cy="30" r="6" fill="#ffbd2e"/>
-          <circle cx="312" cy="30" r="6" fill="#ff5f56"/>
-        </svg>
-      </div>
-    </section>
-
-    <!-- 终端组件 -->
-    <section class="terminal" id="terminal">
-      <div class="term-head">
-        <div class="traffic"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
-        <div class="title">interactive shell — type <span style="color:var(--brand)">help</span></div>
-      </div>
-      <div class="term-body" id="term-body" aria-atomic="false">
-        <div class="output" id="output"></div>
-        <div class="line">
-          <span class="prompt" id="prompt"></span>
-          <span class="path" id="path"></span>
-          <div class="input"><input id="cmd" type="text" spellcheck="false" autocomplete="off" aria-label="command input"></div>
+    <!-- 顶部导航 -->
+    <nav class="nav">
+        <div class="brand"><span class="dot"></span><span>~/hacker.land</span></div>
+        <div class="navlinks">
+            <a href="https://github.com/Luyoung0001" target="_blank" rel="noopener">GitHub</a>
+            <a href="https://space.bilibili.com/19872805?spm_id_from=333.1007.0.0" target="_blank"
+                rel="noopener">Bilibili</a>
+            <a href="https://thoughts-519.pages.dev/" target="_blank" rel="noopener">Thoughts</a>
+            <a href="https://blog.luliang.website/" target="_blank" rel="noopener">Blog</a>
+            <a href="mailto:791975457@qq.com">Email</a>
         </div>
-        <div class="help">提示：试试
-          <code>ls</code>、<code>ls medium</code>、<code>use blog</code>、<code>use projects</code>、<code>cat hello-world</code>、<code>clear</code>
+    </nav>
+
+    <main class="wrap">
+        <section class="hero">
+            <div>
+                <h1>你好，访客 <span class="blink">▉</span></h1>
+                <p>这是一个 <strong>Linux 终端风格</strong> 的个人主页，它支持
+                    <code>ls</code>、<code>cat</code>、<code>open</code>、<code>use</code> 等命令。
+                    输入 <code>help</code> 查看所有命令。
+                </p>
+            </div>
+            <div style="justify-self:end; align-self:stretch; display:grid; place-items:center">
+                <svg width="180" height="120" viewBox="0 0 400 260" fill="none" xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden>
+                    <rect x="10" y="10" width="380" height="240" rx="12" stroke="#12352f" stroke-width="3"
+                        fill="#0a1112" />
+                    <text x="24" y="48" fill="#66ffcc" font-family="JetBrains Mono, monospace" font-size="24">$ sudo
+                        make coffee</text>
+                    <text x="24" y="90" fill="#93ffd6" font-family="JetBrains Mono, monospace" font-size="24">brewing...
+                        done.</text>
+                    <circle cx="360" cy="30" r="6" fill="#27c93f" />
+                    <circle cx="336" cy="30" r="6" fill="#ffbd2e" />
+                    <circle cx="312" cy="30" r="6" fill="#ff5f56" />
+                </svg>
+            </div>
+        </section>
+
+        <!-- 终端组件 -->
+        <section class="terminal" id="terminal">
+            <div class="term-head">
+                <div class="traffic"><span class="dot red"></span><span class="dot yellow"></span><span
+                        class="dot green"></span></div>
+                <div class="title">interactive shell — type <span style="color:var(--brand)">help</span></div>
+            </div>
+            <div class="term-body" id="term-body" aria-atomic="false">
+                <div class="output" id="output"></div>
+                <div class="line">
+                    <span class="prompt" id="prompt"></span>
+                    <span class="path" id="path"></span>
+                    <div class="input"><input id="cmd" type="text" spellcheck="false" autocomplete="off"
+                            aria-label="command input"></div>
+                </div>
+                <div class="help">提示：试试
+                    <code>ls</code>、<code>ls medium</code>、<code>use blog</code>、<code>use projects</code>、<code>cat hello-world</code>、<code>clear</code>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>© <span id="year"></span> Luyoung · Made with ♥ and vanilla JS</footer>
+
+    <!-- 给读屏的最新输出区域 -->
+    <div id="aria-live" class="sr-only" aria-live="polite"></div>
+
+    <!-- 无脚本时的可索引内容（SEO 兜底） -->
+    <noscript>
+        <div class="wrap" style="padding-bottom:32px">
+            <h2 style="color:#66ffcc">项目（无脚本版）</h2>
+            <ul>
+                <li><a href="https://github.com/Luyoung0001/mydebugger">my_debugger</a></li>
+                <li><a href="https://github.com/Luyoung0001/cpp_design">练习C++11的例子</a></li>
+                <li><a href="https://github.com/Luyoung0001/trans_api">golang增删改查后端</a></li>
+                <li><a href="https://github.com/Luyoung0001/translate_all">cmd_line_tool前端</a></li>
+                <li><a href="https://github.com/Luyoung0001/Loongarch_1">手撕6级流水线处理器,linux 启动!</a></li>
+            </ul>
+            <p>博客与更多内容请开启 JavaScript 后使用命令行界面浏览。</p>
         </div>
-      </div>
-    </section>
-  </main>
+    </noscript>
 
-  <footer>© <span id="year"></span> Luyoung · Made with ♥ and vanilla JS</footer>
+    <script>
+        const SOURCES = {
+            blog: { label: "个人博客", posts: [] }, // 运行时从 posts.json 填充
+            projects: {
+                label: "项目",
+                posts: [
+                    { id: "debugger", title: "my_debugger", url: "https://github.com/Luyoung0001/mydebugger" },
+                    { id: "cpp_design", title: "练习C++11的例子", url: "https://github.com/Luyoung0001/cpp_design" },
+                    { id: "trans_api", title: "golang增删改查后端", url: "https://github.com/Luyoung0001/trans_api" },
+                    { id: "translator", title: "cmd_line_tool前端", url: "https://github.com/Luyoung0001/translate_all" },
+                    { id: "CPU", title: "手撕6级流水线处理器,linux 启动!", url: "https://github.com/Luyoung0001/Loongarch_1" },
+                ]
+            },
+        };
 
-  <!-- 给读屏的最新输出区域 -->
-  <div id="aria-live" class="sr-only" aria-live="polite"></div>
+        const $ = s => document.querySelector(s);
+        const $$ = s => Array.from(document.querySelectorAll(s));
 
-  <!-- 无脚本时的可索引内容（SEO 兜底） -->
-  <noscript>
-    <div class="wrap" style="padding-bottom:32px">
-      <h2 style="color:#66ffcc">项目（无脚本版）</h2>
-      <ul>
-        <li><a href="https://github.com/Luyoung0001/mydebugger">my_debugger</a></li>
-        <li><a href="https://github.com/Luyoung0001/cpp_design">练习C++11的例子</a></li>
-        <li><a href="https://github.com/Luyoung0001/trans_api">golang增删改查后端</a></li>
-        <li><a href="https://github.com/Luyoung0001/translate_all">cmd_line_tool前端</a></li>
-        <li><a href="https://github.com/Luyoung0001/Loongarch_1">手撕6级流水线处理器,linux 启动!</a></li>
-      </ul>
-      <p>博客与更多内容请开启 JavaScript 后使用命令行界面浏览。</p>
-    </div>
-  </noscript>
+        const output = $('#output');
+        const cmdInput = $('#cmd');
+        const pathEl = $('#path');
+        const promptEl = $('#prompt');
+        const ariaLive = $('#aria-live');
 
-  <script>
-    const SOURCES = {
-      blog: { label: "个人博客", posts: [] }, // 运行时从 posts.json 填充
-      projects: {
-        label: "项目",
-        posts: [
-          { id: "debugger",   title: "my_debugger",                     url: "https://github.com/Luyoung0001/mydebugger" },
-          { id: "cpp_design", title: "练习C++11的例子",                 url: "https://github.com/Luyoung0001/cpp_design" },
-          { id: "trans_api",  title: "golang增删改查后端",              url: "https://github.com/Luyoung0001/trans_api" },
-          { id: "translator", title: "cmd_line_tool前端",               url: "https://github.com/Luyoung0001/translate_all" },
-          { id: "CPU",        title: "手撕6级流水线处理器,linux 启动!", url: "https://github.com/Luyoung0001/Loongarch_1"},
-        ]
-      },
-    };
+        const state = {
+            username: 'guest',
+            host: 'hacker.land',
+            site: 'blog', // 当前活动站点
+            history: [],
+            historyIndex: -1,
+        };
 
-    const $  = s => document.querySelector(s);
-    const $$ = s => Array.from(document.querySelectorAll(s));
-
-    const output   = $('#output');
-    const cmdInput = $('#cmd');
-    const pathEl   = $('#path');
-    const promptEl = $('#prompt');
-    const ariaLive = $('#aria-live');
-
-    const state = {
-      username: 'guest',
-      host: 'hacker.land',
-      site: 'blog', // 当前活动站点
-      history: [],
-      historyIndex: -1,
-    };
-
-    function setPrompt(){
-      promptEl.textContent = `${state.username}@${state.host}`;
-      pathEl.textContent = `:${state.site}$`;
-    }
-
-    function print(html, ariaText = ''){
-      const line = document.createElement('div');
-      line.innerHTML = html;
-      output.appendChild(line);
-      if (ariaText){
-        // 只把最新一句写入 aria-live，避免读屏反复朗读历史
-        ariaLive.textContent = ariaText;
-      }
-      // 自动滚动
-      const body = document.getElementById('term-body');
-      body.scrollTop = body.scrollHeight;
-    }
-
-    function sanitize(text){
-      return text.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
-    }
-
-    function help(){
-      print(
-        `可用命令：\n\n` +
-        `  <span style="color:var(--brand)">help</span>                 显示帮助\n` +
-        `  <span style="color:var(--brand)">sites</span>                列出可用站点来源\n` +
-        `  <span style="color:var(--brand)">use &lt;source&gt;</span>        切换活动站点（例如：use blog）\n` +
-        `  <span style="color:var(--brand)">ls</span> [source]          列出文章（缺省为当前站点）\n` +
-        `  <span style="color:var(--brand)">cat &lt;id&gt;</span>            新标签页打开文章（当前站点）\n` +
-        `  <span style="color:var(--brand)">cat &lt;source&gt;/&lt;id&gt;</span> 指定站点新标签页打开文章\n` +
-        `  <span style="color:var(--brand)">open &lt;id&gt;</span>           新标签页打开文章（与 cat 等效）\n` +
-        `  <span style="color:var(--brand)">clear</span>                清屏（或 Ctrl+L）\n` +
-        `  <span style="color:var(--brand)">about</span>                关于本站\n`
-      , '显示帮助');
-    }
-
-    function list(source){
-      const key  = source || state.site;
-      const pack = SOURCES[key];
-      if (!pack){
-        print(`<span style="color:var(--danger)">未知站点：</span> ${sanitize(key)}\n使用 <code>sites</code> 查看可用站点。`, '未知站点');
-        return;
-      }
-      if (!pack.posts || !pack.posts.length){
-        print(`<em>（${sanitize(pack.label || key)} 暂无文章）</em>`, '暂无文章');
-        return;
-      }
-      const rows = pack.posts.map(p =>
-        `<tr><td>${sanitize(p.id)}</td><td>${sanitize(p.title)}</td><td><a href="${p.url}" target="_blank" rel="noopener">link</a></td></tr>`
-      ).join('');
-      print(`<div>来源：<strong>${sanitize(pack.label || key)}</strong>（键：<code>${sanitize(key)}</code>）</div>`);
-      print(`<table><thead><tr><th>id</th><th>title</th><th>url</th></tr></thead><tbody>${rows}</tbody></table>`, `列出 ${pack.label||key} 列表`);
-    }
-
-    // 更安全的外链打开
-    function safeOpen(url, newTab){
-      try{
-        const u = new URL(url, location.href);
-        if (!/^https?:$/.test(u.protocol)) throw new Error('bad scheme');
-        if (newTab){
-          window.open(u.href, '_blank', 'noopener,noreferrer');
-        } else {
-          window.location.href = u.href;
+        function setPrompt() {
+            promptEl.textContent = `${state.username}@${state.host}`;
+            pathEl.textContent = `:${state.site}$`;
         }
-      }catch{
-        print(`<span style="color:var(--danger)">非法链接：</span> ${sanitize(url)}`, '非法链接');
-      }
-    }
 
-    function openArticle(spec, inNewTab = false){
-      // 支持：id 或 source/id 或 直接 URL
-      if (/^https?:\/\//i.test(spec)){
-        return safeOpen(spec, inNewTab);
-      }
-      let src = state.site, id = spec;
-      if (spec.includes('/')){
-        const m = spec.match(/^([^/]+)\/(.+)$/);
-        if (m){ src = m[1]; id = m[2]; }
-      }
-      const pack = SOURCES[src];
-      if (!pack){ print(`<span style="color:var(--danger)">未知站点：</span> ${sanitize(src)}`, '未知站点'); return; }
-      const post = (pack.posts || []).find(p => p.id === id);
-      if (!post){ print(`<span style="color:var(--danger)">未找到文章：</span> ${sanitize(id)}（站点 <code>${sanitize(src)}</code>）`, '未找到文章'); return; }
-      safeOpen(post.url, inNewTab);
-    }
-
-    function about(){
-      print(
-        `作者：<strong>Luyoung</strong>\n` +
-        `主页：<a href="https://blog.luliang.website/" target="_blank" rel="noopener">blog.luliang.website</a>\n` +
-        `仓库：<a href="https://github.com/Luyoung0001" target="_blank" rel="noopener">GitHub</a>`,
-        '关于本站'
-      );
-    }
-
-    function run(input){
-      const raw = input.trim();
-      if (!raw) { help(); return; } // 空输入，回显帮助简化上手
-      const [cmd, ...args] = raw.split(/\s+/);
-      switch (cmd){
-        case 'help': help(); break;
-        case 'sites':
-          print(`可用站点：\n` + Object.keys(SOURCES).map(k => `  - ${k} (${SOURCES[k].label || k})`).join('\n'), '列出站点');
-          break;
-        case 'use':
-          if (!args[0]) { print('用法：use <source>', '用法提示'); break; }
-          if (!SOURCES[args[0]]) { print(`<span style="color:var(--danger)">未知站点：</span> ${sanitize(args[0])}`, '未知站点'); break; }
-          state.site = args[0]; setPrompt(); print(`已切换到站点：<strong>${sanitize(args[0])}</strong>`, '切换站点');
-          break;
-        case 'ls':
-          list(args[0]);
-          break;
-        case 'cat':
-          if (!args[0]) { print('用法：cat <id> 或 cat <source>/<id>', '用法提示'); break; }
-          openArticle(args[0], true); // 新标签页（符合你的期望）
-          break;
-        case 'open':
-          if (!args[0]) { print('用法：open <id> 或 open <source>/<id>', '用法提示'); break; }
-          openArticle(args[0], true); // 新标签
-          break;
-        case 'clear':
-          output.innerHTML = ''; ariaLive.textContent=''; break;
-        case 'about':
-          about(); break;
-        default:
-          print(`<span style="color:var(--danger)">命令未找到：</span> ${sanitize(cmd)} ；试试 <code>help</code>`, '命令未找到');
-      }
-    }
-
-    // 自动补全（Tab）：命令 / 站点 / 当前源 id
-    const COMMANDS = ['help','sites','use','ls','cat','open','clear','about'];
-    function getCompletions(prefix){
-      // 先命令
-      const pool = new Set(COMMANDS);
-      // 加站点
-      Object.keys(SOURCES).forEach(k => pool.add(k));
-      // 加当前/指定源的 id（支持 "cat pr<Tab>"）
-      const tokens = cmdInput.value.trim().split(/\s+/);
-      const first = tokens[0] || '';
-      let src = state.site;
-      if ((first === 'cat' || first === 'open' || first === 'ls') && tokens[1]){
-        if (tokens[1].includes('/')){
-          const m = tokens[1].match(/^([^/]+)\/(.*)$/);
-          if (m && SOURCES[m[1]]) src = m[1];
+        function print(html, ariaText = '') {
+            const line = document.createElement('div');
+            line.innerHTML = html;
+            output.appendChild(line);
+            if (ariaText) {
+                // 只把最新一句写入 aria-live，避免读屏反复朗读历史
+                ariaLive.textContent = ariaText;
+            }
+            // 自动滚动
+            const body = document.getElementById('term-body');
+            body.scrollTop = body.scrollHeight;
         }
-        (SOURCES[src].posts || []).forEach(p => {
-          pool.add(p.id);
-          pool.add(`${src}/${p.id}`);
+
+        function sanitize(text) {
+            return text.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+        }
+
+        function help() {
+            const rows = [
+                ['help', '显示帮助'],
+                ['sites', '列出可用站点来源'],
+                ['use <source>', '切换活动站点（例如：use blog）'],
+                ['ls [source]', '列出文章（缺省为当前站点）'],
+                ['cat <id>', '新标签页打开文章（当前站点）'],
+                ['cat <source>/<id>', '指定站点新标签页打开文章'],
+                ['open <id>', '新标签页打开文章（与 cat 等效）'],
+                ['clear', '清屏（或 Ctrl+L）'],
+                ['about', '关于本站'],
+            ];
+            const html =
+                `<div>可用命令：</div>
+     <div class="help-list">
+       ${rows.map(([k, v]) =>
+                    `<div class="help-row"><code>${sanitize(k)}</code><div class="desc">${sanitize(v)}</div></div>`
+                ).join('')}
+     </div>`;
+            print(html, '显示帮助');
+        }
+
+        function list(source) {
+            const key = source || state.site;
+            const pack = SOURCES[key];
+            if (!pack) {
+                print(`<span style="color:var(--danger)">未知站点：</span> ${sanitize(key)}\n使用 <code>sites</code> 查看可用站点。`, '未知站点');
+                return;
+            }
+            if (!pack.posts || !pack.posts.length) {
+                print(`<em>（${sanitize(pack.label || key)} 暂无文章）</em>`, '暂无文章');
+                return;
+            }
+            const rows = pack.posts.map(p =>
+                `<tr><td>${sanitize(p.id)}</td><td>${sanitize(p.title)}</td><td><a href="${p.url}" target="_blank" rel="noopener">link</a></td></tr>`
+            ).join('');
+            print(`<div>来源：<strong>${sanitize(pack.label || key)}</strong>（键：<code>${sanitize(key)}</code>）</div>`);
+            print(`<table><thead><tr><th>id</th><th>title</th><th>url</th></tr></thead><tbody>${rows}</tbody></table>`, `列出 ${pack.label || key} 列表`);
+        }
+
+        // 更安全的外链打开
+        function safeOpen(url, newTab) {
+            try {
+                const u = new URL(url, location.href);
+                if (!/^https?:$/.test(u.protocol)) throw new Error('bad scheme');
+                if (newTab) {
+                    window.open(u.href, '_blank', 'noopener,noreferrer');
+                } else {
+                    window.location.href = u.href;
+                }
+            } catch {
+                print(`<span style="color:var(--danger)">非法链接：</span> ${sanitize(url)}`, '非法链接');
+            }
+        }
+
+        function openArticle(spec, inNewTab = false) {
+            // 支持：id 或 source/id 或 直接 URL
+            if (/^https?:\/\//i.test(spec)) {
+                return safeOpen(spec, inNewTab);
+            }
+            let src = state.site, id = spec;
+            if (spec.includes('/')) {
+                const m = spec.match(/^([^/]+)\/(.+)$/);
+                if (m) { src = m[1]; id = m[2]; }
+            }
+            const pack = SOURCES[src];
+            if (!pack) { print(`<span style="color:var(--danger)">未知站点：</span> ${sanitize(src)}`, '未知站点'); return; }
+            const post = (pack.posts || []).find(p => p.id === id);
+            if (!post) { print(`<span style="color:var(--danger)">未找到文章：</span> ${sanitize(id)}（站点 <code>${sanitize(src)}</code>）`, '未找到文章'); return; }
+            safeOpen(post.url, inNewTab);
+        }
+
+        function about() {
+            print(
+                `作者：<strong>Luyoung</strong>\n` +
+                `主页：<a href="https://blog.luliang.website/" target="_blank" rel="noopener">blog.luliang.website</a>\n` +
+                `仓库：<a href="https://github.com/Luyoung0001/myWebsite" target="_blank" rel="noopener">GitHub</a>`,
+                '关于本站'
+            );
+        }
+
+        function run(input) {
+            const raw = input.trim();
+            if (!raw) { help(); return; } // 空输入，回显帮助简化上手
+            const [cmd, ...args] = raw.split(/\s+/);
+            switch (cmd) {
+                case 'help': help(); break;
+                case 'sites':
+                    print(`可用站点：\n` + Object.keys(SOURCES).map(k => `  - ${k} (${SOURCES[k].label || k})`).join('\n'), '列出站点');
+                    break;
+                case 'use':
+                    if (!args[0]) { print('用法：use <source>', '用法提示'); break; }
+                    if (!SOURCES[args[0]]) { print(`<span style="color:var(--danger)">未知站点：</span> ${sanitize(args[0])}`, '未知站点'); break; }
+                    state.site = args[0]; setPrompt(); print(`已切换到站点：<strong>${sanitize(args[0])}</strong>`, '切换站点');
+                    break;
+                case 'ls':
+                    list(args[0]);
+                    break;
+                case 'cat':
+                    if (!args[0]) { print('用法：cat <id> 或 cat <source>/<id>', '用法提示'); break; }
+                    openArticle(args[0], true); // 新标签页（符合你的期望）
+                    break;
+                case 'open':
+                    if (!args[0]) { print('用法：open <id> 或 open <source>/<id>', '用法提示'); break; }
+                    openArticle(args[0], true); // 新标签
+                    break;
+                case 'clear':
+                    output.innerHTML = ''; ariaLive.textContent = ''; break;
+                case 'about':
+                    about(); break;
+                default:
+                    print(`<span style="color:var(--danger)">命令未找到：</span> ${sanitize(cmd)} ；试试 <code>help</code>`, '命令未找到');
+            }
+        }
+
+        // 自动补全（Tab）：命令 / 站点 / 当前源 id
+        const COMMANDS = ['help', 'sites', 'use', 'ls', 'cat', 'open', 'clear', 'about'];
+        function getCompletions(prefix) {
+            // 先命令
+            const pool = new Set(COMMANDS);
+            // 加站点
+            Object.keys(SOURCES).forEach(k => pool.add(k));
+            // 加当前/指定源的 id（支持 "cat pr<Tab>"）
+            const tokens = cmdInput.value.trim().split(/\s+/);
+            const first = tokens[0] || '';
+            let src = state.site;
+            if ((first === 'cat' || first === 'open' || first === 'ls') && tokens[1]) {
+                if (tokens[1].includes('/')) {
+                    const m = tokens[1].match(/^([^/]+)\/(.*)$/);
+                    if (m && SOURCES[m[1]]) src = m[1];
+                }
+                (SOURCES[src].posts || []).forEach(p => {
+                    pool.add(p.id);
+                    pool.add(`${src}/${p.id}`);
+                });
+            }
+            return Array.from(pool).filter(x => x.startsWith(prefix));
+        }
+
+        function onSubmit() {
+            const value = cmdInput.value;
+            if (!value.trim()) { help(); return; }
+            print(`<span style="color:#7df5bf">$</span> ${sanitize(value)}`);
+            ariaLive.textContent = value;
+            state.history.push(value);
+            state.historyIndex = state.history.length;
+            cmdInput.value = '';
+            run(value);
+        }
+
+        cmdInput.addEventListener('keydown', (e) => {
+            // 回车
+            if (e.key === 'Enter') { e.preventDefault(); onSubmit(); return; }
+            // 历史
+            if (e.key === 'ArrowUp') {
+                if (state.historyIndex > 0) { state.historyIndex--; cmdInput.value = state.history[state.historyIndex] || ''; setTimeout(() => cmdInput.setSelectionRange(cmdInput.value.length, cmdInput.value.length), 0); }
+                return;
+            }
+            if (e.key === 'ArrowDown') {
+                if (state.historyIndex < state.history.length) { state.historyIndex++; cmdInput.value = state.history[state.historyIndex] || ''; setTimeout(() => cmdInput.setSelectionRange(cmdInput.value.length, cmdInput.value.length), 0); }
+                return;
+            }
+            // Ctrl/Cmd + L 清屏
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'l') {
+                e.preventDefault(); output.innerHTML = ''; ariaLive.textContent = ''; return;
+            }
+            // Tab 自动补全
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const text = cmdInput.value;
+                const parts = text.trim().split(/\s+/);
+                const last = parts[parts.length - 1] || '';
+                if (!last) { return; }
+                const matches = getCompletions(last);
+                if (matches.length === 1) {
+                    parts[parts.length - 1] = matches[0];
+                    cmdInput.value = parts.join(' ');
+                } else if (matches.length > 1) {
+                    print(matches.join('  '), '可用补全项');
+                }
+            }
         });
-      }
-      return Array.from(pool).filter(x => x.startsWith(prefix));
-    }
 
-    function onSubmit(){
-      const value = cmdInput.value;
-      if (!value.trim()) { help(); return; }
-      print(`<span style="color:#7df5bf">$</span> ${sanitize(value)}`);
-      ariaLive.textContent = value;
-      state.history.push(value);
-      state.historyIndex = state.history.length;
-      cmdInput.value = '';
-      run(value);
-    }
-
-    cmdInput.addEventListener('keydown', (e) => {
-      // 回车
-      if (e.key === 'Enter'){ e.preventDefault(); onSubmit(); return; }
-      // 历史
-      if (e.key === 'ArrowUp'){
-        if (state.historyIndex > 0){ state.historyIndex--; cmdInput.value = state.history[state.historyIndex] || ''; setTimeout(() => cmdInput.setSelectionRange(cmdInput.value.length, cmdInput.value.length), 0); }
-        return;
-      }
-      if (e.key === 'ArrowDown'){
-        if (state.historyIndex < state.history.length){ state.historyIndex++; cmdInput.value = state.history[state.historyIndex] || ''; setTimeout(() => cmdInput.setSelectionRange(cmdInput.value.length, cmdInput.value.length), 0); }
-        return;
-      }
-      // Ctrl/Cmd + L 清屏
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'l'){
-        e.preventDefault(); output.innerHTML=''; ariaLive.textContent=''; return;
-      }
-      // Tab 自动补全
-      if (e.key === 'Tab'){
-        e.preventDefault();
-        const text = cmdInput.value;
-        const parts = text.trim().split(/\s+/);
-        const last = parts[parts.length - 1] || '';
-        if (!last){ return; }
-        const matches = getCompletions(last);
-        if (matches.length === 1){
-          parts[parts.length - 1] = matches[0];
-          cmdInput.value = parts.join(' ');
-        }else if (matches.length > 1){
-          print(matches.join('  '), '可用补全项');
+        async function loadPosts() {
+            try {
+                const res = await fetch('./posts.json', { cache: 'no-store' });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const data = await res.json();
+                if (Array.isArray(data)) {
+                    SOURCES.blog.posts = data;
+                } else if (data && data.blog && Array.isArray(data.blog.posts)) {
+                    SOURCES.blog.label = data.blog.label || SOURCES.blog.label;
+                    SOURCES.blog.posts = data.blog.posts;
+                } else {
+                    throw new Error('JSON 格式不符合预期');
+                }
+            } catch (err) {
+                console.warn('[posts.json] 加载失败：', err);
+                SOURCES.blog.posts = [
+                    { id: 'hello-world', title: '占位：请提供 posts.json', url: 'https://example.com/hello-world' }
+                ];
+            }
         }
-      }
-    });
 
-    async function loadPosts(){
-      try{
-        const res = await fetch('./posts.json', { cache: 'no-store' });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const data = await res.json();
-        if (Array.isArray(data)){
-          SOURCES.blog.posts = data;
-        } else if (data && data.blog && Array.isArray(data.blog.posts)){
-          SOURCES.blog.label = data.blog.label || SOURCES.blog.label;
-          SOURCES.blog.posts = data.blog.posts;
-        } else {
-          throw new Error('JSON 格式不符合预期');
+        async function boot() {
+            $('#year').textContent = new Date().getFullYear();
+            setPrompt();
+            print('欢迎来到交互式终端。输入 <code>help</code> 查看命令。\n', '欢迎信息');
+            await loadPosts();
+            list();
+            cmdInput.focus();
         }
-      }catch(err){
-        console.warn('[posts.json] 加载失败：', err);
-        SOURCES.blog.posts = [
-          { id: 'hello-world', title: '占位：请提供 posts.json', url: 'https://example.com/hello-world' }
-        ];
-      }
-    }
 
-    async function boot(){
-      $('#year').textContent = new Date().getFullYear();
-      setPrompt();
-      print('欢迎来到交互式终端。输入 <code>help</code> 查看命令。\n', '欢迎信息');
-      await loadPosts();
-      list();
-      cmdInput.focus();
-    }
-
-    window.addEventListener('load', boot);
-  </script>
+        window.addEventListener('load', boot);
+    </script>
 </body>
+
 </html>
