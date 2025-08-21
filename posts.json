@@ -1,0 +1,57 @@
+{
+  "blog": {
+    "label": "个人博客",
+    "posts": [
+      {
+        "id": "glcc-4",
+        "title": "08-07\n      GLCC万众一芯单元验证（四）",
+        "url": "https://blog.luliang.website/2025/08/07/GLCC%E4%B8%87%E4%BC%97%E4%B8%80%E8%8A%AF%E5%8D%95%E5%85%83%E9%AA%8C%E8%AF%814/"
+      },
+      {
+        "id": "glcc-3",
+        "title": "08-06\n      GLCC万众一芯单元验证（三）",
+        "url": "https://blog.luliang.website/2025/08/06/GLCC%E4%B8%87%E4%BC%97%E4%B8%80%E8%8A%AF%E5%8D%95%E5%85%83%E9%AA%8C%E8%AF%813/"
+      },
+      {
+        "id": "chiplab-docker",
+        "title": "08-06\n      chplab 打包成 docker 镜像",
+        "url": "https://blog.luliang.website/2025/08/06/chiplab%E6%89%93%E5%8C%85%E6%88%90docker%E9%95%9C%E5%83%8F/"
+      },
+      {
+        "id": "glcc-2",
+        "title": "07-27\n      GLCC万众一芯单元验证（二）",
+        "url": "https://blog.luliang.website/2025/07/27/GLCC%E4%B8%87%E4%BC%97%E4%B8%80%E8%8A%AF%E5%8D%95%E5%85%83%E9%AA%8C%E8%AF%812/"
+      },
+      {
+        "id": "glcc-1",
+        "title": "07-25\n      GLCC万众一芯单元验证（一）",
+        "url": "https://blog.luliang.website/2025/07/25/GLCC%E4%B8%87%E4%BC%97%E4%B8%80%E8%8A%AF%E5%8D%95%E5%85%83%E9%AA%8C%E8%AF%811/"
+      },
+      {
+        "id": "la-10",
+        "title": "07-24\n      LA 挑战赛：成功在 FPGA 上启动 linux_kernel",
+        "url": "https://blog.luliang.website/2025/07/24/LA%E6%8C%91%E6%88%98%E8%B5%9B10/"
+      },
+      {
+        "id": "la-11",
+        "title": "07-23\n      LA 挑战赛：综合的时候 vivado 内存爆炸",
+        "url": "https://blog.luliang.website/2025/07/23/LA%E6%8C%91%E6%88%98%E8%B5%9B11/"
+      },
+      {
+        "id": "post",
+        "title": "07-20\n      一次升级内网环境的记录",
+        "url": "https://blog.luliang.website/2025/07/20/%E7%BB%84%E7%BD%91%E9%81%87%E8%A7%81%E7%9A%84%E9%97%AE%E9%A2%98/"
+      },
+      {
+        "id": "la-9",
+        "title": "07-15\n      LA 挑战赛：双 Cache 设计",
+        "url": "https://blog.luliang.website/2025/07/15/LA%E6%8C%91%E6%88%98%E8%B5%9B9/"
+      },
+      {
+        "id": "la-8",
+        "title": "07-01\n      LA 挑战赛：一次调试 bug 的记录",
+        "url": "https://blog.luliang.website/2025/07/01/LA%E6%8C%91%E6%88%98%E8%B5%9B8/"
+      }
+    ]
+  }
+}
