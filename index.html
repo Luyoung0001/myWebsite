@@ -545,12 +545,41 @@
                 print(`<em>（${sanitize(pack.label || key)} 暂无文章）</em>`, '暂无文章');
                 return;
             }
-            const rows = pack.posts.map(p =>
-                `<tr><td>${sanitize(p.id)}</td><td>${sanitize(p.title)}</td><td><a href="${p.url}" target="_blank" rel="noopener">link</a></td></tr>`
-            ).join('');
-            print(`<div>来源：<strong>${sanitize(pack.label || key)}</strong>（键：<code>${sanitize(key)}</code>）</div>`);
-            print(`<table><thead><tr><th>id</th><th>title</th><th>url</th></tr></thead><tbody>${rows}</tbody></table>`, `列出 ${pack.label || key} 列表`);
+
+            // 允许 posts 中有可选字段：date（'07-25' 这种）或 time（ISO）
+            const rows = pack.posts.map(p => {
+                // 兼容：如果 posts.json 里是 ISO 日期，你也可以在这里格式化成 MM-DD
+                const date = p.date ? String(p.date) :
+                    (p.time ? new Date(p.time).toISOString().slice(5, 10) : '');
+
+                const titleCell =
+                    `<div class="twrap">
+         ${date ? `<span class="date">${sanitize(date)}</span><span class="sep" aria-hidden>·</span>` : ''}
+         <span class="ttl" title="${sanitize(p.title)}">${sanitize(p.title)}</span>
+       </div>`;
+
+                return `<tr>
+              <td>${sanitize(p.id)}</td>
+              <td>${titleCell}</td>
+              <td><a href="${p.url}" target="_blank" rel="noopener">link</a></td>
+            </tr>`;
+            }).join('');
+
+            const table =
+                `<div>来源：<strong>${sanitize(pack.label || key)}</strong>（键：<code>${sanitize(key)}</code>）</div>
+     <table class="posts">
+       <colgroup>
+         <col class="id"><col class="title"><col class="url">
+       </colgroup>
+       <thead>
+         <tr><th>ID</th><th>标题</th><th>URL</th></tr>
+       </thead>
+       <tbody>${rows}</tbody>
+     </table>`;
+
+            print(table, `列出 ${pack.label || key} 列表`);
         }
+
 
         // 更安全的外链打开
         function safeOpen(url, newTab) {
