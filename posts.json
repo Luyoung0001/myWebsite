@@ -3,6 +3,11 @@
     "label": "个人博客",
     "posts": [
       {
+        "id": "la-12",
+        "title": "08-23\n      LA 挑战赛：龙芯杯团体赛总结",
+        "url": "https://blog.luliang.website/2025/08/23/LA%E6%8C%91%E6%88%98%E8%B5%9B12/"
+      },
+      {
         "id": "glcc-4",
         "title": "08-07\n      GLCC万众一芯单元验证（四）",
         "url": "https://blog.luliang.website/2025/08/07/GLCC%E4%B8%87%E4%BC%97%E4%B8%80%E8%8A%AF%E5%8D%95%E5%85%83%E9%AA%8C%E8%AF%814/"
@@ -46,11 +51,6 @@
         "id": "la-9",
         "title": "07-15\n      LA 挑战赛：双 Cache 设计",
         "url": "https://blog.luliang.website/2025/07/15/LA%E6%8C%91%E6%88%98%E8%B5%9B9/"
-      },
-      {
-        "id": "la-8",
-        "title": "07-01\n      LA 挑战赛：一次调试 bug 的记录",
-        "url": "https://blog.luliang.website/2025/07/01/LA%E6%8C%91%E6%88%98%E8%B5%9B8/"
       }
     ]
   }
