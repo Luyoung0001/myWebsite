@@ -124,6 +124,7 @@
             white-space: pre-wrap;
             word-break: break-word;
             cursor: text;
+            user-select: text;
             transition: background-color 420ms ease, padding 420ms ease;
         }
 
@@ -133,6 +134,7 @@
 
         .line {
             min-height: 1.38em;
+            user-select: text;
         }
 
         .prompt {
@@ -180,6 +182,7 @@
             vertical-align: baseline;
             appearance: none;
             border-radius: 0;
+            user-select: text;
         }
 
         .terminal-input::placeholder {
@@ -203,6 +206,7 @@
             opacity: 0;
             transform: translateX(18px);
             pointer-events: none;
+            user-select: text;
             transition: opacity 340ms ease, transform 420ms cubic-bezier(.2, .8, .2, 1);
         }
 
@@ -269,6 +273,7 @@
             white-space: normal;
             word-break: normal;
             overflow-wrap: anywhere;
+            user-select: text;
         }
 
         .reader-loading {
@@ -358,6 +363,27 @@
             border-left: 3px solid #303030;
             padding-left: 12px;
             color: #a8a8a8;
+        }
+
+        .doc a {
+            color: var(--green);
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            text-decoration-thickness: 1px;
+        }
+
+        .doc a:hover,
+        .doc a:focus-visible {
+            color: var(--fg);
+            outline: none;
+        }
+
+        .doc a:visited {
+            color: #afd7af;
+        }
+
+        .doc a code {
+            text-decoration: underline;
         }
 
         .doc img {
@@ -457,6 +483,10 @@
             .repo-meta {
                 grid-template-columns: 1fr;
             }
+
+            .reader-head {
+                grid-template-columns: minmax(0, 1fr) auto auto;
+            }
         }
     </style>
 </head>
@@ -514,6 +544,12 @@
             email: "mailto:791975457@qq.com"
         };
 
+        const PAGE_SIZE = 10;
+        const BLOG_ARCHIVES_URL = `${links.blog}archives/`;
+        const GITHUB_REPOS_API = "https://api.github.com/users/Luyoung0001/repos";
+        const GITHUB_SEARCH_API = "https://api.github.com/search/repositories";
+        const JINA_READER_BASE = "https://r.jina.ai/http://";
+
         const blogPosts = [
             {
                 id: "la",
@@ -549,6 +585,16 @@
             { id: "cpp", name: "cpp_design", owner: "Luyoung0001" }
         ];
 
+        const dataState = {
+            postsLoaded: false,
+            postsLoading: null,
+            reposLoaded: false,
+            reposLoading: null,
+            githubResults: [],
+            webResults: [],
+            webProvider: localStorage.getItem("webSearchProvider") || "google"
+        };
+
         const files = {
             "/home/guest": {
                 type: "dir",
@@ -562,7 +608,7 @@
                             "",
                             "systems / low-level software / FPGA / debugging",
                             "",
-                            "Try: posts, repos, open post la, open repo cpu"
+                            "Try: posts, repos, github search riscv, open post 0, open repo 0"
                         ].join("\n")
                     },
                     "links": { type: "dir", mode: "drwxr-xr-x", size: 160 }
@@ -586,24 +632,27 @@
             input: null,
             promptLine: null,
             readerOpen: false,
-            running: false
+            running: false,
+            pager: null,
+            pagerArmed: false
         };
 
         const commands = [
             "help", "clear", "pwd", "ls", "cd", "cat", "echo", "printf", "date",
-            "whoami", "hostname", "uname", "id", "history", "env", "posts", "repos",
-            "open", "close", "xdg-open", "exit"
+            "whoami", "hostname", "uname", "id", "history", "env", "posts", "repos", "gitrepo",
+            "github", "web", "google", "bing", "being", "next", "prev", "open", "close", "xdg-open", "exit"
         ];
 
         const welcomeLines = [
-            `<span class="hint">type <span class="kbd">help</span> and press <span class="kbd">Enter</span>. try <span class="kbd">posts</span>, <span class="kbd">repos</span>, <span class="kbd">open post la</span>.</span>`
+            `<span class="hint">type <span class="kbd">help</span> and press <span class="kbd">Enter</span>. try <span class="kbd">posts</span>, <span class="kbd">repos</span>, <span class="kbd">open post 0</span>.</span>`
         ];
 
         function escapeHtml(value) {
             return String(value ?? "").replace(/[&<>"]/g, char => ({
                 "&": "&amp;",
                 "<": "&lt;",
-                ">": "&gt;"
+                ">": "&gt;",
+                "\"": "&quot;"
             }[char]));
         }
 
@@ -663,6 +712,22 @@
             readerTitle.textContent = title;
             readerLink.href = url;
             readerBody.innerHTML = html;
+            readerBody.scrollTop = 0;
+        }
+
+        function showOops(message, examples = []) {
+            const rows = examples.map(example => `<li><code>${escapeHtml(example)}</code></li>`).join("");
+            setReaderLoading("Oops", "#");
+            readerTitle.textContent = "Oops";
+            readerLink.href = "#";
+            readerBody.innerHTML = `
+                <section class="doc">
+                    <p class="doc-kicker">command error</p>
+                    <h1>Oops</h1>
+                    <p>${escapeHtml(message)}</p>
+                    ${rows ? `<h2>Try</h2><ul>${rows}</ul>` : ""}
+                </section>
+            `;
             readerBody.scrollTop = 0;
         }
 
@@ -795,6 +860,574 @@
             return [`total ${total}`, ...rows].join("\n");
         }
 
+        function uniqueBy(items, keyFn) {
+            const seen = new Set();
+            return items.filter(item => {
+                const key = keyFn(item);
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            });
+        }
+
+        function ensureUniqueIds(items) {
+            const seen = new Map();
+            return items.map(item => {
+                const base = item.id || "item";
+                const count = (seen.get(base) || 0) + 1;
+                seen.set(base, count);
+                return count === 1 ? item : { ...item, id: compactId(`${base}-${count}`, 34) };
+            });
+        }
+
+        function numberedPosts(items) {
+            return items.map((item, index) => ({
+                ...item,
+                id: String(index),
+                aliases: uniqueBy([item.id, ...(item.aliases || [])].filter(Boolean), alias => alias)
+            }));
+        }
+
+        function renumberPosts(items) {
+            const numbered = numberedPosts(items);
+            blogPosts.splice(0, blogPosts.length, ...numbered);
+            return blogPosts;
+        }
+
+        function numberedRepos(items) {
+            return items.map((item, index) => ({
+                ...item,
+                id: String(index),
+                aliases: uniqueBy([item.id, ...(item.aliases || [])].filter(Boolean), alias => alias)
+            }));
+        }
+
+        function renumberRepos(items) {
+            const numbered = numberedRepos(items);
+            repos.splice(0, repos.length, ...numbered);
+            return repos;
+        }
+
+        function slugify(value, fallback) {
+            const ascii = String(value || "")
+                .normalize("NFKD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, "-")
+                .replace(/^-+|-+$/g, "");
+            return ascii || fallback;
+        }
+
+        function compactId(value, maxLength = 30) {
+            const tokens = String(value || "").split("-").filter(Boolean);
+            const kept = [];
+
+            for (const token of tokens) {
+                const next = [...kept, token].join("-");
+                if (next.length > maxLength && kept.length) break;
+                kept.push(token);
+            }
+
+            return (kept.join("-") || String(value || "").slice(0, maxLength)).replace(/-+$/g, "");
+        }
+
+        function safeDecode(value) {
+            try {
+                return decodeURIComponent(value);
+            } catch {
+                return String(value || "");
+            }
+        }
+
+        function normalizeTitle(value) {
+            return String(value || "")
+                .replace(/[（]/g, "(")
+                .replace(/[）]/g, ")")
+                .replace(/[：]/g, ":")
+                .replace(/\s+/g, " ")
+                .trim();
+        }
+
+        function thesisTopicSlug(value) {
+            const text = normalizeTitle(value);
+            if (/JIT/i.test(text) && /NES/i.test(text)) return "jit-nes";
+            if (/JIT/i.test(text)) return "jit";
+            if (/qemu/i.test(text)) return "qemu";
+            if (/NES/i.test(text) && /mario/i.test(text)) return "nes-mario";
+            if (/shell|命令/.test(text)) return "shell";
+            if (/terminal/i.test(text)) return "terminal";
+            if (/HDMI/i.test(text) && /buffer/i.test(text)) return "hdmi-buffer";
+            if (/时间片|协作式|多任务/.test(text)) return "timeslice-os";
+            if (/ps2|键盘/i.test(text)) return "ps2-keyboard";
+            if (/minicom/i.test(text)) return "minicom";
+            if (/uart/i.test(text)) return "uart-test";
+            if (/ddr3/i.test(text) && /sd\s*卡/i.test(text)) return "ddr3-sd";
+            if (/mylibc/i.test(text)) return "mylibc";
+            if (/HDMI[_\s-]*test/i.test(text)) return "hdmi-test";
+            if (/xOS/i.test(text)) return "xos";
+            if (/hello\s*world/i.test(text)) return "hello-world";
+            if (/地址空间/.test(text)) return "addr-space";
+            return semanticSlug(text, "");
+        }
+
+        function semanticSlug(value, fallback) {
+            const replacements = [
+                ["硬件加速", "hardware-accel"],
+                ["快速仿真", "fast-sim"],
+                ["内联汇编", "inline-asm"],
+                ["地址空间", "addr-space"],
+                ["时间片", "timeslice"],
+                ["协作式", "coop"],
+                ["多任务", "multitask"],
+                ["模拟器", "emulator"],
+                ["注意点", "note"],
+                ["适配", "port"],
+                ["仿真", "sim"],
+                ["命令", "shell"],
+                ["设计", "design"],
+                ["键盘", "keyboard"],
+                ["测试", "test"],
+                ["划分", "layout"],
+                ["系统", "os"],
+                ["技术", ""],
+                ["利用", ""],
+                ["基于", ""],
+                ["更多", ""],
+                ["一个", ""],
+                ["的", ""],
+                ["和", " "],
+                ["与", " "]
+            ];
+            let text = normalizeTitle(value);
+            for (const [from, to] of replacements) {
+                text = text.replaceAll(from, ` ${to} `);
+            }
+            return compactId(slugify(text, fallback), 30);
+        }
+
+        function postAlias(title, url) {
+            const decoded = safeDecode(url);
+            if (/LA\s*框架/i.test(title) || /LA\s*框架/i.test(decoded)) return "la";
+            if (/硬件加速\s*NES/i.test(title) || /硬件加速NES/i.test(decoded)) return "nes";
+            if (/JIT\s*跑\s*NES/i.test(title) || /JIT.*NES/i.test(decoded)) return "jit-nes";
+            if (/qemu/i.test(title) || /qemu/i.test(decoded)) return "qemu";
+            return "";
+        }
+
+        function repoAlias(name) {
+            const aliases = {
+                Loongarch_1: "cpu",
+                mydebugger: "debugger",
+                trans_api: "trans-api",
+                translate_all: "translator",
+                cpp_design: "cpp"
+            };
+            return aliases[name] || "";
+        }
+
+        function mapGitHubRepo(repo) {
+            const alias = repoAlias(repo.name) || slugify(repo.name, `repo-${repo.id}`);
+            const owner = repo.owner?.login || "unknown";
+            return {
+                id: alias,
+                aliases: uniqueBy([alias, repo.name, `${owner}/${repo.name}`].filter(Boolean), item => item),
+                name: repo.name,
+                owner,
+                description: repo.description || "",
+                url: repo.html_url,
+                language: repo.language || "mixed",
+                stars: repo.stargazers_count || 0,
+                updatedAt: repo.updated_at || ""
+            };
+        }
+
+        async function fetchDocument(url) {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const html = await response.text();
+            return new DOMParser().parseFromString(html, "text/html");
+        }
+
+        function archivePageUrl(page) {
+            return page <= 1 ? BLOG_ARCHIVES_URL : `${BLOG_ARCHIVES_URL}page/${page}/`;
+        }
+
+        function archivePageCount(doc) {
+            const numbers = [...doc.querySelectorAll(".page-number")]
+                .map(node => Number(node.textContent.trim()))
+                .filter(Number.isFinite);
+            return Math.max(1, ...numbers);
+        }
+
+        function fallbackPostTitle(url) {
+            const segment = safeDecode(new URL(url).pathname.split("/").filter(Boolean).at(-1) || "post");
+            return segment.replace(/[-_]+/g, " ").trim() || "untitled post";
+        }
+
+        function makePostId(title, url, date, index) {
+            const normalized = normalizeTitle(title || fallbackPostTitle(url));
+            const alias = postAlias(normalized, url);
+            if (alias) return alias;
+
+            const thesis = normalized.match(/^毕设\s*\(?(\d+)\)?\s*:\s*(.+)$/);
+            if (thesis) {
+                const topic = thesisTopicSlug(thesis[2]);
+                return compactId(`thesis-${Number(thesis[1])}${topic ? `-${topic}` : ""}`, 30);
+            }
+
+            if (/loongarch/i.test(normalized) && /内联汇编/.test(normalized)) return "loongarch-inline-asm";
+
+            const slug = semanticSlug(normalized, "");
+            return slug || `post-${date.replace(/-/g, "")}-${index + 1}`;
+        }
+
+        function extractArchivePosts(doc, pageUrl) {
+            return [...doc.querySelectorAll("a.list-group-item[href]")]
+                .map((link, index) => {
+                    const url = new URL(link.getAttribute("href"), pageUrl).href;
+                    const match = url.match(/\/(20\d{2})\/(\d{2})\/(\d{2})\//);
+                    if (!match) return null;
+
+                    const titleNode = link.querySelector(".list-group-item-title");
+                    const title = (titleNode?.textContent || "").replace(/\s+/g, " ").trim() || fallbackPostTitle(url);
+                    const date = `${match[1]}-${match[2]}-${match[3]}`;
+                    const alias = makePostId(title, url, date, index);
+                    return { id: alias, aliases: [alias], title, date, url };
+                })
+                .filter(Boolean);
+        }
+
+        async function loadAllPosts() {
+            if (dataState.postsLoaded) return blogPosts;
+            if (dataState.postsLoading) return dataState.postsLoading;
+
+            dataState.postsLoading = (async () => {
+                const firstDoc = await fetchDocument(BLOG_ARCHIVES_URL);
+                const pageCount = Math.min(archivePageCount(firstDoc), 60);
+                const restPages = await Promise.all(
+                    Array.from({ length: Math.max(0, pageCount - 1) }, (_, index) => fetchDocument(archivePageUrl(index + 2)))
+                );
+                const pages = [firstDoc, ...restPages];
+
+                const fetched = pages.flatMap((doc, index) => extractArchivePosts(doc, archivePageUrl(index + 1)));
+                renumberPosts(ensureUniqueIds(uniqueBy([...fetched, ...blogPosts], post => post.url)));
+                dataState.postsLoaded = true;
+                return blogPosts;
+            })().finally(() => {
+                dataState.postsLoading = null;
+            });
+
+            return dataState.postsLoading;
+        }
+
+        async function loadAllRepos() {
+            if (dataState.reposLoaded) return repos;
+            if (dataState.reposLoading) return dataState.reposLoading;
+
+            dataState.reposLoading = (async () => {
+                const fetched = [];
+                for (let page = 1; page <= 10; page += 1) {
+                    const response = await fetch(`${GITHUB_REPOS_API}?per_page=100&sort=updated&page=${page}`);
+                    if (!response.ok) throw new Error(`GitHub HTTP ${response.status}`);
+                    const payload = await response.json();
+                    fetched.push(...payload);
+                    if (payload.length < 100) break;
+                }
+
+                const mapped = fetched.map(mapGitHubRepo);
+                const merged = uniqueBy([...mapped, ...repos], repo => `${repo.owner}/${repo.name}`);
+                renumberRepos(merged);
+                dataState.reposLoaded = true;
+                return repos;
+            })().finally(() => {
+                dataState.reposLoading = null;
+            });
+
+            return dataState.reposLoading;
+        }
+
+        async function searchGitHubRepos(query) {
+            const response = await fetch(`${GITHUB_SEARCH_API}?q=${encodeURIComponent(query)}&sort=stars&order=desc&per_page=50`);
+            if (!response.ok) throw new Error(`GitHub search HTTP ${response.status}`);
+            const payload = await response.json();
+            dataState.githubResults = numberedRepos((payload.items || []).map(mapGitHubRepo));
+            return dataState.githubResults;
+        }
+
+        function numberWebResults(items) {
+            return items.map((item, index) => ({
+                id: String(index),
+                title: item.title || item.url || "untitled",
+                url: item.url,
+                snippet: item.snippet || item.description || ""
+            })).filter(item => item.url);
+        }
+
+        async function fetchMarkdownSearch(url) {
+            const response = await fetch(`${JINA_READER_BASE}${url}`);
+            if (!response.ok) throw new Error(`web search HTTP ${response.status}`);
+            return response.text();
+        }
+
+        function stripMarkdown(value) {
+            return String(value || "")
+                .replace(/!\[[^\]]*]\([^)]+\)/g, "")
+                .replace(/\[([^\]]+)]\((https?:\/\/[^)]+)\)/g, "$1")
+                .replace(/\*\*([^*]+)\*\*/g, "$1")
+                .replace(/`([^`]+)`/g, "$1")
+                .replace(/\s+/g, " ")
+                .trim();
+        }
+
+        function decodeBingUrl(value) {
+            const encoded = new URL(value).searchParams.get("u");
+            if (!encoded) return value;
+            const payload = encoded.startsWith("a1") ? encoded.slice(2) : encoded;
+            try {
+                const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+                const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=");
+                const decoded = decodeBase64(padded);
+                return /^https?:\/\//i.test(decoded) ? decoded : value;
+            } catch {
+                return value;
+            }
+        }
+
+        function resolveSearchRedirect(value) {
+            try {
+                const url = new URL(value);
+                if (url.hostname.includes("duckduckgo.com") && url.searchParams.get("uddg")) {
+                    return url.searchParams.get("uddg");
+                }
+                if (url.hostname.includes("bing.com") && url.pathname.startsWith("/ck/")) {
+                    return decodeBingUrl(value);
+                }
+                return value;
+            } catch {
+                return value;
+            }
+        }
+
+        function isSearchChromeUrl(value) {
+            try {
+                const url = new URL(value);
+                const host = url.hostname.replace(/^www\./, "");
+                return [
+                    "google.com",
+                    "bing.com",
+                    "duckduckgo.com",
+                    "support.google.com",
+                    "accounts.google.com",
+                    "maps.google.com"
+                ].some(domain => host === domain || host.endsWith(`.${domain}`));
+            } catch {
+                return true;
+            }
+        }
+
+        function resultFingerprint(item) {
+            try {
+                const url = new URL(item.url);
+                url.hash = "";
+                return url.href.replace(/\/$/, "");
+            } catch {
+                return item.url;
+            }
+        }
+
+        function cleanSearchSnippet(value) {
+            return stripMarkdown(value)
+                .replace(/URL Source:.+$/i, "")
+                .replace(/Markdown Content:.+$/i, "")
+                .replace(/\bCached\b|\bSimilar\b/g, "")
+                .trim();
+        }
+
+        function parseDuckDuckGoMarkdown(markdown) {
+            const results = [];
+            const pattern = /^\s*(\d+)\.\[([^\]]+)]\((https?:\/\/[^)]+)\)\s*\n([\s\S]*?)(?=\n\s*\d+\.\[|\n\s*\[Feedback]|\n\s*Title:|$)/gm;
+            let match;
+            while ((match = pattern.exec(markdown))) {
+                const title = stripMarkdown(match[2]);
+                const url = resolveSearchRedirect(match[3]);
+                const snippet = cleanSearchSnippet(match[4].split("\n").filter(line => !/^https?:\/\//i.test(line.trim())).join(" "));
+                if (title && /^https?:\/\//i.test(url) && !isSearchChromeUrl(url)) {
+                    results.push({ title, url, snippet });
+                }
+            }
+            return results;
+        }
+
+        function parseBingMarkdown(markdown) {
+            const results = [];
+            const pattern = /^\s*(\d+)\.\s+## \[([^\]]+)]\((https?:\/\/[^)]+)\)\s*\n+([\s\S]*?)(?=\n\s*\d+\.\s+## \[|$)/gm;
+            let match;
+            while ((match = pattern.exec(markdown))) {
+                const title = stripMarkdown(match[2]);
+                const url = resolveSearchRedirect(match[3]);
+                const snippet = cleanSearchSnippet(match[4]);
+                if (title && /^https?:\/\//i.test(url) && !isSearchChromeUrl(url)) {
+                    results.push({ title, url, snippet });
+                }
+            }
+            return results;
+        }
+
+        function parseGoogleMarkdown(markdown) {
+            const results = [];
+            const pattern = /^\s*\*\s+\[]\((https?:\/\/[^)]+)\)([^\n]+?)(?=\s{2,}!\[|\n|\r|$)/gm;
+            let match;
+            while ((match = pattern.exec(markdown))) {
+                const title = stripMarkdown(match[2]);
+                const url = resolveSearchRedirect(match[1]);
+                if (title && /^https?:\/\//i.test(url) && !isSearchChromeUrl(url)) {
+                    results.push({ title, url, snippet: "" });
+                }
+            }
+            return results;
+        }
+
+        function parseMarkdownSearchResults(markdown, source) {
+            const parsers = source === "bing"
+                ? [parseBingMarkdown, parseDuckDuckGoMarkdown, parseGoogleMarkdown]
+                : [parseGoogleMarkdown, parseDuckDuckGoMarkdown, parseBingMarkdown];
+            const merged = uniqueBy(parsers.flatMap(parse => parse(markdown)), resultFingerprint);
+            return numberWebResults(merged.slice(0, 50));
+        }
+
+        async function searchWithMarkdownProvider(url, source, fallback) {
+            const markdown = await fetchMarkdownSearch(url);
+            const results = parseMarkdownSearchResults(markdown, source);
+            if (results.length) return results;
+            return numberWebResults([fallback]);
+        }
+
+        const webSearchProviders = {
+            google: {
+                async search(query) {
+                    return searchWithMarkdownProvider(
+                        `https://lite.duckduckgo.com/lite/?q=${encodeURIComponent(query)}`,
+                        "google",
+                        {
+                            title: `Google search page: ${query}`,
+                            url: `https://www.google.com/search?q=${encodeURIComponent(query)}`,
+                            snippet: "Search parser returned no individual results, so this is the fallback search page."
+                        }
+                    );
+                }
+            },
+            bing: {
+                async search(query) {
+                    return searchWithMarkdownProvider(
+                        `https://www.bing.com/search?q=${encodeURIComponent(query)}`,
+                        "bing",
+                        {
+                            title: `Bing search page: ${query}`,
+                            url: `https://www.bing.com/search?q=${encodeURIComponent(query)}`,
+                            snippet: "Search parser returned no individual results, so this is the fallback search page."
+                        }
+                    );
+                }
+            },
+            being: {
+                async search(query) {
+                    return webSearchProviders.bing.search(query);
+                }
+            },
+            "custom-json": {
+                async search(query) {
+                    const endpoint = localStorage.getItem("webSearchEndpoint") || "";
+                    if (!endpoint) throw new Error("Missing webSearchEndpoint.");
+                    const response = await fetch(endpoint.replace("{query}", encodeURIComponent(query)));
+                    if (!response.ok) throw new Error(`web search HTTP ${response.status}`);
+                    const payload = await response.json();
+                    const rawItems = Array.isArray(payload) ? payload : (payload.items || payload.results || []);
+                    return numberWebResults(rawItems.map(item => ({
+                        title: item.title || item.name,
+                        url: item.url || item.link,
+                        snippet: item.snippet || item.description
+                    })));
+                }
+            },
+            "static-demo": {
+                async search(query) {
+                    return numberWebResults([
+                        ...(await webSearchProviders.google.search(query)),
+                        ...(await webSearchProviders.bing.search(query)),
+                        {
+                            title: `GitHub: ${query}`,
+                            url: `https://github.com/search?q=${encodeURIComponent(query)}&type=repositories`,
+                            snippet: "GitHub web search URL."
+                        }
+                    ]);
+                }
+            }
+        };
+
+        async function searchWeb(query) {
+            const providerName = dataState.webProvider;
+            const provider = webSearchProviders[providerName] || webSearchProviders.google;
+            const results = await provider.search(query);
+            dataState.webResults = numberWebResults(results);
+            return dataState.webResults;
+        }
+
+        function postRow(post, idWidth = 18) {
+            return `${post.id.padEnd(idWidth, " ")} ${post.date}  ${post.title}`;
+        }
+
+        function repoRow(repo, idWidth = 18) {
+            const updated = repo.updatedAt ? repo.updatedAt.slice(0, 10) : "----------";
+            const stars = String(repo.stars ?? 0).padStart(3, " ");
+            return `${repo.id.padEnd(idWidth, " ")} ${stars}  ${updated}  ${repo.owner}/${repo.name}`;
+        }
+
+        function webRow(item, idWidth = 18) {
+            return `${item.id.padEnd(idWidth, " ")} ${item.title}  ${item.url}`;
+        }
+
+        function renderPage(delta = 0) {
+            if (!state.pager) return false;
+            const maxPage = Math.max(0, Math.ceil(state.pager.items.length / PAGE_SIZE) - 1);
+            const nextPage = Math.max(0, Math.min(maxPage, state.pager.page + delta));
+
+            if (nextPage === state.pager.page && delta !== 0) {
+                appendText(nextPage === maxPage ? "pager: already at last page" : "pager: already at first page");
+                return true;
+            }
+
+            state.pager.page = nextPage;
+            const start = nextPage * PAGE_SIZE;
+            const pageItems = state.pager.items.slice(start, start + PAGE_SIZE);
+            const pageLabel = `${nextPage + 1}/${maxPage + 1}`;
+            const headerByType = {
+                posts: `posts page ${pageLabel} (${state.pager.items.length} total) -- ↓ next, ↑ prev, open post <id>`,
+                repos: `repos page ${pageLabel} (${state.pager.items.length} total) -- ↓ next, ↑ prev, open repo <id>`,
+                "github-search": `github search page ${pageLabel} (${state.pager.items.length} total) -- ↓ next, ↑ prev, github open <id>`,
+                "web-search": `web search page ${pageLabel} (${state.pager.items.length} total) -- ↓ next, ↑ prev, web open <id>`
+            };
+            const idWidth = Math.max(18, ...pageItems.map(item => item.id.length));
+            const columnByType = {
+                posts: `${"id".padEnd(idWidth, " ")} date        title`,
+                repos: `${"id".padEnd(idWidth, " ")} ★    updated     repository`,
+                "github-search": `${"id".padEnd(idWidth, " ")} ★    updated     repository`,
+                "web-search": `${"id".padEnd(idWidth, " ")} title  url`
+            };
+            const rows = pageItems.map(item => {
+                if (state.pager.type === "posts") return postRow(item, idWidth);
+                if (state.pager.type === "web-search") return webRow(item, idWidth);
+                return repoRow(item, idWidth);
+            });
+            appendText([headerByType[state.pager.type] || headerByType.repos, columnByType[state.pager.type] || columnByType.repos, ...rows].join("\n"));
+            return true;
+        }
+
+        function setPager(type, items) {
+            state.pager = { type, items, page: 0 };
+            state.pagerArmed = true;
+            renderPage();
+        }
+
         const builtins = {
             help() {
                 appendText([
@@ -811,8 +1444,16 @@
                     "  whoami              print user",
                     "  uname [-a]          print system name",
                     "  history             print command history",
-                    "  posts               list readable blog posts",
-                    "  repos               list readable github repos",
+                    "  posts               list blog posts, 10 per page",
+                    "  repos / gitrepo     list github repos, 10 per page",
+                    "  github search <q>   search GitHub repositories",
+                    "  github open <id>    render a GitHub search result",
+                    "  web search <q>      search with the current web engine",
+                    "  web engine [name]   show/set google, bing, custom-json",
+                    "  web open <id>       open a web search result",
+                    "  google <q>          search Google",
+                    "  bing <q>            search Bing",
+                    "  next / prev         page the last posts/repos listing",
                     "  open post <id>      render a blog post in the right pane",
                     "  open repo <id>      render a github repo in the right pane",
                     "  close               close the right pane",
@@ -822,6 +1463,7 @@
             },
             clear() {
                 terminal.innerHTML = "";
+                state.pagerArmed = false;
             },
             pwd() {
                 appendText(state.cwd);
@@ -911,13 +1553,51 @@
                     "PWD=" + state.cwd
                 ].join("\n"));
             },
-            posts() {
-                const rows = blogPosts.map(post => `${post.id.padEnd(10, " ")} ${post.date}  ${post.title}`);
-                appendText(rows.join("\n"));
+            async posts() {
+                try {
+                    if (!dataState.postsLoaded) appendText(`fetch ${BLOG_ARCHIVES_URL}`);
+                    const posts = await loadAllPosts();
+                    setPager("posts", posts);
+                } catch (error) {
+                    appendLine(`<span class="error">posts: fetch failed: ${escapeHtml(error.message)}</span>`);
+                    setPager("posts", renumberPosts(blogPosts));
+                }
             },
-            repos() {
-                const rows = repos.map(repo => `${repo.id.padEnd(10, " ")} ${repo.owner}/${repo.name}`);
-                appendText(rows.join("\n"));
+            async repos() {
+                try {
+                    if (!dataState.reposLoaded) appendText(`fetch ${GITHUB_REPOS_API}`);
+                    const items = await loadAllRepos();
+                    setPager("repos", items);
+                } catch (error) {
+                    appendLine(`<span class="error">repos: fetch failed: ${escapeHtml(error.message)}</span>`);
+                    setPager("repos", renumberRepos(repos));
+                }
+            },
+            async gitrepo(args) {
+                await builtins.repos(args);
+            },
+            async github(args) {
+                await githubCommand(args);
+            },
+            async web(args) {
+                await webCommand(args);
+            },
+            async google(args) {
+                await webCommand(["search-with", "google", ...args]);
+            },
+            async bing(args) {
+                await webCommand(["search-with", "bing", ...args]);
+            },
+            async being(args) {
+                await webCommand(["search-with", "bing", ...args]);
+            },
+            next() {
+                if (renderPage(1)) state.pagerArmed = true;
+                else appendText("pager: no active posts/repos listing");
+            },
+            prev() {
+                if (renderPage(-1)) state.pagerArmed = true;
+                else appendText("pager: no active posts/repos listing");
             },
             "xdg-open"(args) {
                 openTarget(args[0], "xdg-open");
@@ -950,27 +1630,237 @@
             }
         }
 
+        function looksLikeExternalTarget(value) {
+            return /^(https?:\/\/|mailto:)/i.test(value || "");
+        }
+
         function findPost(id) {
-            return blogPosts.find(post => post.id === id || post.title === id);
+            return blogPosts.find(post => post.id === id || post.title === id || (post.aliases || []).includes(id));
         }
 
         function findRepo(id) {
-            return repos.find(repo => repo.id === id || repo.name === id || `${repo.owner}/${repo.name}` === id);
+            return repos.find(repo => repo.id === id || repo.name === id || `${repo.owner}/${repo.name}` === id || (repo.aliases || []).includes(id));
+        }
+
+        function findGitHubResult(id) {
+            return dataState.githubResults.find(repo => repo.id === id || repo.name === id || `${repo.owner}/${repo.name}` === id || (repo.aliases || []).includes(id));
+        }
+
+        function findWebResult(id) {
+            return dataState.webResults.find(item => item.id === id || item.url === id || item.title === id);
+        }
+
+        async function resolvePost(id) {
+            let post = findPost(id);
+            if ((!post || /^\d+$/.test(id || "")) && !dataState.postsLoaded) {
+                await loadAllPosts();
+                post = findPost(id);
+            }
+            return post;
+        }
+
+        async function resolveRepo(id) {
+            let repo = findRepo(id);
+            if ((!repo || /^\d+$/.test(id || "")) && !dataState.reposLoaded) {
+                await loadAllRepos();
+                repo = findRepo(id);
+            }
+            return repo;
+        }
+
+        async function githubCommand(args) {
+            const [subcommand, ...rest] = args;
+            if (subcommand === "search") {
+                const query = rest.join(" ").trim();
+                if (!query) {
+                    showOops("github search needs a query.", ["github search riscv", "github open 0"]);
+                    appendLine(`<span class="error">github search: missing query</span>`);
+                    return;
+                }
+
+                try {
+                    appendText(`fetch ${GITHUB_SEARCH_API}?q=${query}`);
+                    const results = await searchGitHubRepos(query);
+                    setPager("github-search", results);
+                } catch (error) {
+                    showOops(`GitHub search failed: ${error.message}`, ["github search riscv"]);
+                    appendLine(`<span class="error">github search: ${escapeHtml(error.message)}</span>`);
+                }
+                return;
+            }
+
+            if (subcommand === "open") {
+                const id = rest[0];
+                if (!id) {
+                    showOops("github open needs a result id from the latest GitHub search.", ["github search riscv", "github open 0"]);
+                    appendLine(`<span class="error">github open: missing id</span>`);
+                    return;
+                }
+                const repo = findGitHubResult(id);
+                if (!repo) {
+                    showOops(`GitHub search result not found: ${id}`, ["github search riscv", "github open 0"]);
+                    appendLine(`<span class="error">github open: result not found: ${escapeHtml(id)}</span>`);
+                    return;
+                }
+                await openRepoObject(repo);
+                return;
+            }
+
+            showOops("Unknown github command.", ["github search riscv", "github open 0"]);
+            appendLine(`<span class="error">github: usage: github search <query> | github open <id></span>`);
+        }
+
+        async function webCommand(args) {
+            const [subcommand, ...rest] = args;
+            if (subcommand === "provider" || subcommand === "engine") {
+                const provider = rest[0];
+                if (!provider) {
+                    appendText(`web engine: ${dataState.webProvider}`);
+                    appendText(`available: ${Object.keys(webSearchProviders).join("  ")}`);
+                    return;
+                }
+                if (!webSearchProviders[provider]) {
+                    showOops(`Unknown web search engine: ${provider}`, ["web engine google", "web engine bing", "web engine custom-json"]);
+                    appendLine(`<span class="error">web engine: unknown engine: ${escapeHtml(provider)}</span>`);
+                    return;
+                }
+                dataState.webProvider = provider;
+                localStorage.setItem("webSearchProvider", provider);
+                appendText(`web engine: ${provider}`);
+                return;
+            }
+
+            if (subcommand === "search-with") {
+                const provider = rest[0];
+                const query = rest.slice(1).join(" ").trim();
+                if (!webSearchProviders[provider]) {
+                    showOops(`Unknown web search engine: ${provider}`, ["google loongarch jit", "bing loongarch jit"]);
+                    appendLine(`<span class="error">web search: unknown engine: ${escapeHtml(provider || "")}</span>`);
+                    return;
+                }
+                if (!query) {
+                    showOops(`${provider} search needs a query.`, [`${provider} loongarch jit`, "web open 0"]);
+                    appendLine(`<span class="error">${provider}: missing query</span>`);
+                    return;
+                }
+                try {
+                    appendText(`web search (${provider}) ${query}`);
+                    const previous = dataState.webProvider;
+                    dataState.webProvider = provider;
+                    let results;
+                    try {
+                        results = await searchWeb(query);
+                    } finally {
+                        dataState.webProvider = previous;
+                    }
+                    setPager("web-search", results);
+                } catch (error) {
+                    showWebProviderOops(error.message);
+                    appendLine(`<span class="error">web search: ${escapeHtml(error.message)}</span>`);
+                }
+                return;
+            }
+
+            if (subcommand === "search") {
+                const query = rest.join(" ").trim();
+                if (!query) {
+                    showOops("web search needs a query.", ["web search loongarch jit", "web open 0"]);
+                    appendLine(`<span class="error">web search: missing query</span>`);
+                    return;
+                }
+
+                try {
+                    appendText(`web search (${dataState.webProvider}) ${query}`);
+                    const results = await searchWeb(query);
+                    setPager("web-search", results);
+                } catch (error) {
+                    showWebProviderOops(error.message);
+                    appendLine(`<span class="error">web search: ${escapeHtml(error.message)}</span>`);
+                }
+                return;
+            }
+
+            if (subcommand === "open") {
+                const id = rest[0];
+                if (!id) {
+                    showOops("web open needs a result id from the latest web search.", ["web search loongarch jit", "web open 0"]);
+                    appendLine(`<span class="error">web open: missing id</span>`);
+                    return;
+                }
+                const item = findWebResult(id);
+                if (!item) {
+                    showOops(`Web search result not found: ${id}`, ["web search loongarch jit", "web open 0"]);
+                    appendLine(`<span class="error">web open: result not found: ${escapeHtml(id)}</span>`);
+                    return;
+                }
+                openWebResult(item);
+                return;
+            }
+
+            showOops("Unknown web command.", ["web engine", "web engine bing", "web search loongarch jit", "web open 0"]);
+            appendLine(`<span class="error">web: usage: web engine [name] | web search <query> | web open <id></span>`);
+        }
+
+        function showWebProviderOops(message) {
+            showOops(`Web search provider is not ready: ${message}`, [
+                "web engine google",
+                "web engine bing",
+                "web engine custom-json",
+                "localStorage.setItem('webSearchEndpoint', 'https://your-proxy/search?q={query}')"
+            ]);
+        }
+
+        function openWebResult(item) {
+            setReaderLoading(item.title, item.url);
+            renderReader(item.title, item.url, `
+                <section class="doc">
+                    <p class="doc-kicker">web search result</p>
+                    <h1>${escapeHtml(item.title)}</h1>
+                    ${item.snippet ? `<blockquote>${escapeHtml(item.snippet)}</blockquote>` : ""}
+                    <p><a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.url)}</a></p>
+                </section>
+            `);
+            appendText(`opened web result: ${item.id}`);
         }
 
         async function openSmart(args) {
             if (!args.length) {
                 appendLine(`<span class="error">open: missing operand</span>`);
+                showOops("open needs a target.", ["open post 0", "open repo 0", "open github"]);
                 return;
             }
 
             const [kind, value] = args;
+            if ((kind === "posts" || kind === "post") && kind !== "post") {
+                showOops("Use singular post when opening one item. Run posts first, then open the numeric id.", ["posts", "open post 0"]);
+                appendLine(`<span class="error">open: did you mean 'open post ${escapeHtml(value || "0")}'?</span>`);
+                return;
+            }
+            if ((kind === "repos" || kind === "gitrepo") && kind !== "repo") {
+                showOops("Use singular repo when opening one repository.", ["repos", "open repo 0"]);
+                appendLine(`<span class="error">open: did you mean 'open repo ${escapeHtml(value || "0")}'?</span>`);
+                return;
+            }
             if (kind === "post") {
+                if (!value) {
+                    showOops("Missing post id. Run posts, then open one numeric id.", ["posts", "open post 0"]);
+                    appendLine(`<span class="error">open: missing post id</span>`);
+                    return;
+                }
                 await openPost(value);
                 return;
             }
             if (kind === "repo") {
+                if (!value) {
+                    showOops("Missing repo id. Run repos, then open one repository id.", ["repos", "open repo 0"]);
+                    appendLine(`<span class="error">open: missing repo id</span>`);
+                    return;
+                }
                 await openRepo(value);
+                return;
+            }
+            if (links[kind] || fileContent(resolvePath(kind))) {
+                openTarget(kind, "open");
                 return;
             }
             if (findPost(kind)) {
@@ -981,12 +1871,26 @@
                 await openRepo(kind);
                 return;
             }
-            openTarget(kind, "open");
+            if (await resolvePost(kind)) {
+                await openPost(kind);
+                return;
+            }
+            if (await resolveRepo(kind)) {
+                await openRepo(kind);
+                return;
+            }
+            if (looksLikeExternalTarget(kind)) {
+                openTarget(kind, "open");
+                return;
+            }
+            showOops(`Unknown open target: ${kind}`, ["open post 0", "open repo 0", "open github"]);
+            appendLine(`<span class="error">open: ${escapeHtml(kind)}: unknown target</span>`);
         }
 
         async function openPost(id) {
-            const post = findPost(id);
+            const post = await resolvePost(id);
             if (!post) {
+                showOops(`Post not found: ${id || ""}`, ["posts", "open post 0"]);
                 appendLine(`<span class="error">open: post not found: ${escapeHtml(id || "")}</span>`);
                 return;
             }
@@ -1009,13 +1913,18 @@
         }
 
         async function openRepo(id) {
-            const repo = findRepo(id);
+            const repo = await resolveRepo(id);
             if (!repo) {
+                showOops(`Repo not found: ${id || ""}`, ["repos", "open repo 0"]);
                 appendLine(`<span class="error">open: repo not found: ${escapeHtml(id || "")}</span>`);
                 return;
             }
 
-            const repoUrl = `https://github.com/${repo.owner}/${repo.name}`;
+            await openRepoObject(repo);
+        }
+
+        async function openRepoObject(repo) {
+            const repoUrl = repo.url || `https://github.com/${repo.owner}/${repo.name}`;
             appendText(`fetch https://api.github.com/repos/${repo.owner}/${repo.name}`);
             setReaderLoading(`${repo.owner}/${repo.name}`, repoUrl);
 
@@ -1226,10 +2135,13 @@
             if (state.running) return;
             state.running = true;
             const commandLine = currentInput();
+            const commandName = parse(commandLine).tokens[0] || "";
+            const keepsPager = ["posts", "repos", "gitrepo", "github", "web", "google", "next", "prev"].includes(commandName);
             freezePrompt(commandLine);
 
             try {
                 if (commandLine.trim()) {
+                    if (!keepsPager) state.pagerArmed = false;
                     state.history.push(commandLine);
                     state.historyIndex = state.history.length;
                     saveHistory();
@@ -1266,7 +2178,27 @@
             newPrompt();
         }
 
+        function hasSelection() {
+            const selection = window.getSelection();
+            return Boolean(selection && !selection.isCollapsed && selection.toString());
+        }
+
+        function pageFromKeyboard(delta) {
+            if (!state.pager || !state.pagerArmed || currentInput()) return false;
+
+            if (state.promptLine) {
+                state.promptLine.remove();
+                state.promptLine = null;
+                state.input = null;
+            }
+
+            renderPage(delta);
+            newPrompt();
+            return true;
+        }
+
         terminal.addEventListener("click", () => {
+            if (hasSelection()) return;
             focusInput();
         });
 
@@ -1290,16 +2222,19 @@
             if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "l") {
                 event.preventDefault();
                 terminal.innerHTML = "";
+                state.pagerArmed = false;
                 newPrompt();
                 return;
             }
             if (event.ctrlKey && event.key.toLowerCase() === "c") {
+                if (hasSelection()) return;
                 event.preventDefault();
                 interrupt();
                 return;
             }
             if (event.key === "ArrowUp") {
                 event.preventDefault();
+                if (pageFromKeyboard(-1)) return;
                 if (state.historyIndex > 0) {
                     state.historyIndex -= 1;
                     setCurrentInput(state.history[state.historyIndex] || "");
@@ -1308,6 +2243,7 @@
             }
             if (event.key === "ArrowDown") {
                 event.preventDefault();
+                if (pageFromKeyboard(1)) return;
                 if (state.historyIndex < state.history.length) {
                     state.historyIndex += 1;
                     setCurrentInput(state.history[state.historyIndex] || "");
