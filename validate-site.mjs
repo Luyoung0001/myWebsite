@@ -7,6 +7,19 @@ const requiredHtmlMarkers = [
   'Thoughts',
   'Bilibili',
   'Email',
+  'PicCut',
+  'Invest',
+  'Skills',
+  'XUPTArch',
+  'RSimu',
+  'https://luliang.online/',
+  'https://thoughts.luliang.online/',
+  'https://piccut.luliang.online/',
+  'https://invest.luliang.online/',
+  'https://skills.luliang.online/',
+  'https://luyoungai.asia/',
+  'https://xuptarch.com/',
+  'https://rsimu.xuptarch.com/',
   'id="workspace"',
   'id="terminal"',
   'id="reader"',
@@ -42,6 +55,8 @@ const requiredHtmlMarkers = [
   'function openRepo',
   'text-decoration: underline',
   'const links',
+  'const siteLinks',
+  'const shellReadme',
   'const commands'
 ];
 

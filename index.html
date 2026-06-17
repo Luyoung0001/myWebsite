@@ -89,7 +89,7 @@
             align-items: center;
             border: 1px solid transparent;
             border-radius: 3px;
-            padding: 0 9px;
+            padding: 0 8px;
             color: var(--fg);
         }
 
@@ -494,13 +494,7 @@
 <body>
     <header class="topbar" aria-label="site navigation">
         <div class="topbar-status"><strong>guest@luyoung</strong>:~$</div>
-        <nav class="topbar-links">
-            <a href="https://github.com/Luyoung0001" target="_blank" rel="noopener noreferrer">GitHub</a>
-            <a href="https://blog.luliang.website/" target="_blank" rel="noopener noreferrer">Blog</a>
-            <a href="https://thoughts-519.pages.dev/" target="_blank" rel="noopener noreferrer">Thoughts</a>
-            <a href="https://space.bilibili.com/19872805" target="_blank" rel="noopener noreferrer">Bilibili</a>
-            <a href="mailto:791975457@qq.com">Email</a>
-        </nav>
+        <nav class="topbar-links" id="topbar-links"></nav>
     </header>
     <div class="workspace" id="workspace">
         <main id="terminal" role="application" aria-label="shell" tabindex="0"></main>
@@ -527,6 +521,7 @@
         const readerLink = document.getElementById("reader-link");
         const readerBody = document.getElementById("reader-body");
         const readerClose = document.getElementById("reader-close");
+        const topbarLinks = document.getElementById("topbar-links");
         const ariaLive = document.getElementById("aria-live");
         const commandInput = document.createElement("input");
         commandInput.className = "terminal-input";
@@ -536,13 +531,42 @@
         commandInput.spellcheck = false;
         commandInput.setAttribute("aria-label", "shell command");
 
-        const links = {
-            github: "https://github.com/Luyoung0001",
-            blog: "https://blog.luliang.website/",
-            thoughts: "https://thoughts-519.pages.dev/",
-            bilibili: "https://space.bilibili.com/19872805",
-            email: "mailto:791975457@qq.com"
-        };
+        const projectUrl = "https://luliang.online/";
+        const siteLinks = [
+            { key: "home", label: "Home", href: projectUrl, description: "本项目网址" },
+            { key: "github", label: "GitHub", href: "https://github.com/Luyoung0001", description: "代码与项目" },
+            { key: "blog", label: "Blog", href: "https://blog.luliang.website/", description: "博客文章" },
+            { key: "thoughts", label: "Thoughts", href: "https://thoughts.luliang.online/", description: "随笔与想法" },
+            { key: "bilibili", label: "Bilibili", href: "https://space.bilibili.com/19872805", description: "视频频道" },
+            { key: "email", label: "Email", href: "mailto:791975457@qq.com", description: "联系邮箱" },
+            { key: "piccut", label: "PicCut", href: "https://piccut.luliang.online/", description: "图片简单剪辑" },
+            { key: "invest", label: "Invest", href: "https://invest.luliang.online/", description: "黄金、比特币等行情多空判断" },
+            { key: "skills", label: "Skills", href: "https://skills.luliang.online/", description: "技能与工具" },
+            { key: "ai", label: "AI", href: "https://luyoungai.asia/", description: "AI 中转站" },
+            { key: "xuptarch", label: "XUPTArch", href: "https://xuptarch.com/", description: "硬件学习网站" },
+            { key: "rsimu", label: "RSimu", href: "https://rsimu.xuptarch.com/", description: "RISC-V 模拟器" }
+        ];
+        const links = Object.fromEntries(siteLinks.map(site => [site.key, site.href]));
+        const shellReadme = [
+            "Luyoung shell",
+            "",
+            "目标: 简洁操作。用接近真实 shell 的方式浏览文章、项目、搜索结果和站点入口。",
+            `项目网址: ${projectUrl}`,
+            "",
+            "核心功能:",
+            "  posts / open post <id>       列出并打开博客文章",
+            "  repos / open repo <id>       列出并打开 GitHub 仓库",
+            "  github search <q>            搜索 GitHub 仓库",
+            "  google <q> / bing <q>        搜索网页并用编号打开结果",
+            "  ls links / cat links/<name>  查看站点入口",
+            "",
+            "站点:",
+            ...siteLinks.map(site => `  ${site.key.padEnd(9, " ")} ${site.href}  - ${site.description}`)
+        ].join("\n");
+
+        topbarLinks.innerHTML = siteLinks.map(site => (
+            `<a href="${escapeHtml(site.href)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(site.description)}">${escapeHtml(site.label)}</a>`
+        )).join("");
 
         const PAGE_SIZE = 10;
         const BLOG_ARCHIVES_URL = `${links.blog}archives/`;
@@ -602,14 +626,8 @@
                     "README": {
                         type: "file",
                         mode: "-rw-r--r--",
-                        size: 97,
-                        content: [
-                            "Luyoung",
-                            "",
-                            "systems / low-level software / FPGA / debugging",
-                            "",
-                            "Try: posts, repos, github search riscv, open post 0, open repo 0"
-                        ].join("\n")
+                        size: shellReadme.length,
+                        content: shellReadme
                     },
                     "links": { type: "dir", mode: "drwxr-xr-x", size: 160 }
                 }
@@ -1458,7 +1476,7 @@
                     "  open repo <id>      render a github repo in the right pane",
                     "  close               close the right pane",
                     "  clear               clear terminal",
-                    "  xdg-open <target>   open github/blog/thoughts/bilibili/email"
+                    "  xdg-open <target>   open a link key or URL"
                 ].join("\n"));
             },
             clear() {
