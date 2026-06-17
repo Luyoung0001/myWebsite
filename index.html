@@ -75,6 +75,10 @@
             font-weight: 400;
         }
 
+        .topbar-login {
+            color: var(--green);
+        }
+
         .topbar-links {
             display: flex;
             align-items: center;
@@ -105,14 +109,74 @@
             min-height: 0;
             display: grid;
             grid-template-columns: minmax(0, 1fr) minmax(0, 0fr);
+            align-items: stretch;
             gap: 0;
+            padding: 18px;
             overflow: hidden;
-            transition: grid-template-columns 420ms cubic-bezier(.2, .8, .2, 1), gap 420ms cubic-bezier(.2, .8, .2, 1);
+            transition: grid-template-columns 420ms cubic-bezier(.2, .8, .2, 1), gap 420ms cubic-bezier(.2, .8, .2, 1), padding 420ms ease;
         }
 
         .workspace.reader-open {
             grid-template-columns: minmax(360px, .86fr) minmax(420px, 1.14fr);
-            gap: 1px;
+            gap: 14px;
+        }
+
+        .terminal-frame,
+        .reader {
+            min-width: 0;
+            height: 100%;
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            background: #030303;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, .38), inset 0 1px 0 rgba(255, 255, 255, .04);
+            overflow: hidden;
+        }
+
+        .terminal-frame {
+            width: min(960px, 100%);
+            justify-self: center;
+            display: grid;
+            grid-template-rows: auto minmax(0, 1fr);
+            transition: width 420ms cubic-bezier(.2, .8, .2, 1), transform 420ms cubic-bezier(.2, .8, .2, 1);
+        }
+
+        .workspace.reader-open .terminal-frame {
+            width: 100%;
+            justify-self: stretch;
+        }
+
+        .workspace.reader-open .help-command {
+            min-width: 24ch;
+        }
+
+        .window-bar {
+            min-height: 34px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid #1b1b1b;
+            background: linear-gradient(180deg, #101010, #070707);
+            padding: 0 12px;
+            color: var(--dim);
+        }
+
+        .window-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ff5f57;
+            box-shadow: 16px 0 0 #ffbd2e, 32px 0 0 #28c840;
+            flex: 0 0 auto;
+        }
+
+        .window-title {
+            min-width: 0;
+            margin-left: 34px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: .86rem;
+            color: #9a9a9a;
         }
 
         #terminal {
@@ -167,15 +231,62 @@
             color: var(--yellow);
         }
 
+        .cmd-command,
+        .cmd-action {
+            color: var(--green);
+            font-weight: 700;
+        }
+
+        .cmd-number,
+        .cmd-link {
+            color: var(--blue);
+        }
+
+        .cmd-flag {
+            color: var(--yellow);
+        }
+
+        .help-command {
+            display: inline-block;
+            min-width: 30ch;
+            vertical-align: top;
+        }
+
+        .help-desc {
+            color: var(--dim);
+        }
+
+        .input-slot {
+            position: relative;
+            display: inline-block;
+            min-width: 2ch;
+            width: min(74ch, calc(100% - 22ch));
+            vertical-align: baseline;
+        }
+
+        .input-mirror {
+            display: block;
+            min-height: 1.38em;
+            white-space: pre-wrap;
+            word-break: break-word;
+            pointer-events: none;
+        }
+
+        .input-mirror:empty::after {
+            content: "\00a0";
+        }
+
         .terminal-input {
             display: inline-block;
-            width: min(74ch, calc(100% - 22ch));
+            position: absolute;
+            inset: 0;
+            width: 100%;
             min-width: 2ch;
             border: 0;
             outline: 0;
             padding: 0;
             background: transparent;
-            color: var(--fg);
+            color: transparent;
             font: inherit;
             line-height: inherit;
             caret-color: var(--fg);
@@ -198,11 +309,7 @@
         }
 
         .reader {
-            min-width: 0;
-            height: 100%;
-            border-left: 1px solid var(--border);
             background: linear-gradient(180deg, var(--panel-2), var(--panel));
-            overflow: hidden;
             opacity: 0;
             transform: translateX(18px);
             pointer-events: none;
@@ -219,7 +326,7 @@
         .reader-inner {
             height: 100%;
             display: grid;
-            grid-template-rows: auto minmax(0, 1fr);
+            grid-template-rows: auto auto minmax(0, 1fr);
         }
 
         .reader-head {
@@ -462,8 +569,22 @@
             .workspace,
             .workspace.reader-open {
                 grid-template-columns: minmax(0, 1fr);
+                gap: 10px;
+                padding: 10px;
+            }
+
+            .workspace {
+                grid-template-rows: minmax(0, 1fr) minmax(0, 0fr);
+            }
+
+            .workspace.reader-open {
                 grid-template-rows: minmax(42svh, 1fr) minmax(0, 58svh);
-                gap: 1px;
+            }
+
+            .terminal-frame,
+            .workspace.reader-open .terminal-frame {
+                width: 100%;
+                justify-self: stretch;
             }
 
             #terminal {
@@ -471,9 +592,17 @@
             }
 
             .reader {
-                border-left: 0;
-                border-top: 1px solid var(--border);
                 transform: translateY(16px);
+            }
+
+            .help-command {
+                display: block;
+                min-width: 0;
+            }
+
+            .help-desc {
+                display: block;
+                padding-left: 2ch;
             }
 
             .reader-body {
@@ -493,13 +622,23 @@
 
 <body>
     <header class="topbar" aria-label="site navigation">
-        <div class="topbar-status"><strong>guest@luyoung</strong>:~$</div>
+        <div class="topbar-status" id="topbar-status"></div>
         <nav class="topbar-links" id="topbar-links"></nav>
     </header>
     <div class="workspace" id="workspace">
-        <main id="terminal" role="application" aria-label="shell" tabindex="0"></main>
+        <section class="terminal-frame" aria-label="terminal window">
+            <div class="window-bar" aria-hidden="true">
+                <span class="window-dot"></span>
+                <span class="window-title" id="terminal-title">guest@luliang:~</span>
+            </div>
+            <main id="terminal" role="application" aria-label="shell" tabindex="0"></main>
+        </section>
         <aside class="reader" id="reader" aria-label="content reader" aria-hidden="true">
             <div class="reader-inner">
+                <div class="window-bar" aria-hidden="true">
+                    <span class="window-dot"></span>
+                    <span class="window-title">reader</span>
+                </div>
                 <header class="reader-head">
                     <div class="reader-title" id="reader-title">reader</div>
                     <a class="reader-link" id="reader-link" href="#" target="_blank" rel="noopener noreferrer">source</a>
@@ -522,8 +661,12 @@
         const readerBody = document.getElementById("reader-body");
         const readerClose = document.getElementById("reader-close");
         const topbarLinks = document.getElementById("topbar-links");
+        const topbarStatus = document.getElementById("topbar-status");
+        const terminalTitle = document.getElementById("terminal-title");
         const ariaLive = document.getElementById("aria-live");
         const commandInput = document.createElement("input");
+        const inputMirror = document.createElement("span");
+        inputMirror.className = "input-mirror";
         commandInput.className = "terminal-input";
         commandInput.type = "text";
         commandInput.autocomplete = "off";
@@ -643,7 +786,7 @@
 
         const state = {
             user: "guest",
-            host: "luyoung",
+            host: "luliang",
             cwd: "/home/guest",
             history: JSON.parse(localStorage.getItem("history") || "[]").slice(-100),
             historyIndex: -1,
@@ -702,6 +845,29 @@
             }
         }
 
+        function formatBeijingTime(date = new Date()) {
+            return new Intl.DateTimeFormat("en-US", {
+                timeZone: "Asia/Shanghai",
+                weekday: "short",
+                month: "short",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: false,
+                timeZoneName: "short"
+            }).format(date).replace(/,/g, "");
+        }
+
+        function appendHelp(rows) {
+            appendLine("GNU bash, version 5.2.0(compatible)");
+            appendLine("");
+            appendLine(`<span class="dim">These shell commands are available:</span>`);
+            for (const [command, description] of rows) {
+                appendLine(`  <span class="help-command">${highlightCommandLine(command)}</span><span class="help-desc">${escapeHtml(description)}</span>`);
+            }
+        }
+
         function setReaderLoading(title, url) {
             state.readerOpen = true;
             workspace.classList.add("reader-open");
@@ -751,15 +917,18 @@
 
         function newPrompt() {
             const line = appendLine(`${promptHtml()}<span class="input-slot"></span>`);
+            const slot = line.querySelector(".input-slot");
             state.promptLine = line;
             state.input = commandInput;
             commandInput.value = "";
-            line.querySelector(".input-slot").appendChild(commandInput);
+            updateInputMirror();
+            slot.appendChild(inputMirror);
+            slot.appendChild(commandInput);
             focusInput();
         }
 
         function freezePrompt(command) {
-            state.promptLine.innerHTML = `${promptHtml()}${escapeHtml(command)}`;
+            state.promptLine.innerHTML = `${promptHtml()}${highlightCommandLine(command)}`;
             state.input = null;
             state.promptLine = null;
         }
@@ -769,6 +938,18 @@
             commandInput.focus({ preventScroll: true });
             commandInput.setSelectionRange(commandInput.value.length, commandInput.value.length);
             terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function updateInputMirror() {
+            inputMirror.innerHTML = highlightCommandLine(commandInput.value);
+        }
+
+        function setLoginStatus() {
+            const loginTime = formatBeijingTime();
+            const prompt = `${state.user}@${state.host}:~$`;
+            topbarStatus.innerHTML = `<strong>${escapeHtml(prompt)}</strong> Last login: ${escapeHtml(loginTime)} <span class="topbar-login">欢迎登录</span>`;
+            terminalTitle.textContent = `${state.user}@${state.host}:~`;
+            return loginTime;
         }
 
         function saveHistory() {
@@ -810,6 +991,32 @@
 
             if (token) tokens.push(token);
             return { tokens, quoteOpen: Boolean(quote) };
+        }
+
+        function commandTokenClass(token, index, tokens) {
+            if (index === 0 && commands.includes(token)) return "cmd-command";
+            if (tokens[index - 1] === "/" && commands.includes(token)) return "cmd-command";
+            if (/^https?:\/\//i.test(token) || /^mailto:/i.test(token)) return "cmd-link";
+            if (/^-{1,2}[\w-]+$/.test(token)) return "cmd-flag";
+            if (/^\d+$/.test(token)) return "cmd-number";
+            if (links[token]) return "cmd-link";
+            if (/^<[^>]+>$/.test(token) || /^\[[^\]]+]$/.test(token)) return "cmd-number";
+            if (index === 1 && ["github", "web"].includes(tokens[0])) return "cmd-action";
+            return "";
+        }
+
+        function highlightCommandLine(commandLine) {
+            const parsed = parse(commandLine);
+            if (!parsed.tokens.length) return escapeHtml(commandLine);
+            let cursor = 0;
+            return parsed.tokens.map((token, index) => {
+                const position = commandLine.indexOf(token, cursor);
+                const prefix = position > cursor ? escapeHtml(commandLine.slice(cursor, position)) : "";
+                cursor = position + token.length;
+                const cls = commandTokenClass(token, index, parsed.tokens);
+                const html = cls ? `<span class="${cls}">${escapeHtml(token)}</span>` : escapeHtml(token);
+                return `${prefix}${html}`;
+            }).join("") + escapeHtml(commandLine.slice(cursor));
         }
 
         function resolvePath(path = ".") {
@@ -1448,36 +1655,33 @@
 
         const builtins = {
             help() {
-                appendText([
-                    "GNU bash, version 5.2.0(compatible)",
-                    "",
-                    "These shell commands are available:",
-                    "  help                show this help",
-                    "  pwd                 print working directory",
-                    "  ls [-la] [path]     list files",
-                    "  cd [path]           change directory",
-                    "  cat <file>          print file",
-                    "  echo <text>         print text",
-                    "  date                print local date",
-                    "  whoami              print user",
-                    "  uname [-a]          print system name",
-                    "  history             print command history",
-                    "  posts               list blog posts, 10 per page",
-                    "  repos / gitrepo     list github repos, 10 per page",
-                    "  github search <q>   search GitHub repositories",
-                    "  github open <id>    render a GitHub search result",
-                    "  web search <q>      search with the current web engine",
-                    "  web engine [name]   show/set google, bing, custom-json",
-                    "  web open <id>       open a web search result",
-                    "  google <q>          search Google",
-                    "  bing <q>            search Bing",
-                    "  next / prev         page the last posts/repos listing",
-                    "  open post <id>      render a blog post in the right pane",
-                    "  open repo <id>      render a github repo in the right pane",
-                    "  close               close the right pane",
-                    "  clear               clear terminal",
-                    "  xdg-open <target>   open a link key or URL"
-                ].join("\n"));
+                appendHelp([
+                    ["help", "show this help"],
+                    ["pwd", "print working directory"],
+                    ["ls -la links", "list files"],
+                    ["cd links", "change directory"],
+                    ["cat README", "print file"],
+                    ["echo <text>", "print text"],
+                    ["date", "print Beijing time"],
+                    ["whoami", "print user"],
+                    ["uname -a", "print system name"],
+                    ["history", "print command history"],
+                    ["posts", "list blog posts, 10 per page"],
+                    ["repos / gitrepo", "list github repos, 10 per page"],
+                    ["github search riscv", "search GitHub repositories"],
+                    ["github open 0", "render a GitHub search result"],
+                    ["web search <q>", "search with the current web engine"],
+                    ["web engine [name]", "show or set google, bing, custom-json"],
+                    ["web open <id>", "open a web search result"],
+                    ["google <q>", "search Google"],
+                    ["bing <q>", "search Bing"],
+                    ["next / prev", "page the last listing"],
+                    ["open post <id>", "render a blog post in the right pane"],
+                    ["open repo <id>", "render a github repo in the right pane"],
+                    ["close", "close the right pane"],
+                    ["clear", "clear terminal"],
+                    ["xdg-open github", "open a link key or URL"]
+                ]);
             },
             clear() {
                 terminal.innerHTML = "";
@@ -1540,7 +1744,7 @@
                 appendText(args.join(" ").replace(/\\n/g, "\n"));
             },
             date() {
-                appendText(new Date().toString());
+                appendText(formatBeijingTime());
             },
             whoami() {
                 appendText(state.user);
@@ -1550,7 +1754,7 @@
             },
             uname(args) {
                 appendText(args.includes("-a")
-                    ? "Linux luyoung 6.6.0-static #1 SMP PREEMPT_DYNAMIC x86_64 GNU/Linux"
+                    ? "Linux luliang 6.6.0-static #1 SMP PREEMPT_DYNAMIC x86_64 GNU/Linux"
                     : "Linux");
             },
             id() {
@@ -1566,7 +1770,7 @@
                     "SHELL=/bin/bash",
                     "USER=guest",
                     "HOME=/home/guest",
-                    "HOSTNAME=luyoung",
+                    "HOSTNAME=luliang",
                     "TERM=xterm-256color",
                     "PWD=" + state.cwd
                 ].join("\n"));
@@ -2146,6 +2350,7 @@
         function setCurrentInput(value) {
             if (!state.input) return;
             commandInput.value = value;
+            updateInputMirror();
             focusInput();
         }
 
@@ -2274,10 +2479,13 @@
             focusInput();
         });
 
+        commandInput.addEventListener("input", updateInputMirror);
         commandInput.addEventListener("keydown", handleKeydown);
 
         async function boot() {
-            appendText("Last login: Tue Jun 16 16:00:00 on tty1");
+            const loginTime = setLoginStatus();
+            appendText(`Last login: ${loginTime} on tty1`);
+            appendText("欢迎登录");
             welcomeLines.forEach(line => appendLine(line));
             newPrompt();
             const params = new URLSearchParams(location.search);
