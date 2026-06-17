@@ -54,6 +54,7 @@ const requiredHtmlMarkers = [
   'web engine [name]',
   'google <q>',
   'bing <q>',
+  'jslinux',
   'games',
   'snake',
   '2048',

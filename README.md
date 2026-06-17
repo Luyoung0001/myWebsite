@@ -42,6 +42,7 @@ snake
 2048
 mario
 neofetch
+jslinux
 posts
 repos
 github search riscv

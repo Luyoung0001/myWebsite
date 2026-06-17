@@ -716,6 +716,25 @@
             background: linear-gradient(180deg, #151515, #060606);
         }
 
+        .embed-shell {
+            display: grid;
+            gap: 12px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .embed-shell p {
+            margin: 0;
+        }
+
+        .embed-frame {
+            width: 100%;
+            min-height: min(72svh, 780px);
+            border: 1px solid var(--pre-border);
+            border-radius: 8px;
+            background: var(--panel-solid);
+        }
+
         .doc img {
             max-width: 100%;
             height: auto;
@@ -942,6 +961,7 @@
             "  repos / open repo <id>       列出并打开 GitHub 仓库",
             "  github search <q>            搜索 GitHub 仓库",
             "  google <q> / bing <q>        搜索网页并用编号打开结果",
+            "  jslinux                     打开 x86_64 Linux Console",
             "  games / snake / 2048 / mario 终端小游戏",
             "  neofetch                    浏览器环境信息",
             "  ls links / cat links/<name>  查看站点入口",
@@ -959,6 +979,7 @@
         const GITHUB_REPOS_API = "https://api.github.com/users/Luyoung0001/repos";
         const GITHUB_SEARCH_API = "https://api.github.com/search/repositories";
         const JINA_READER_BASE = "https://r.jina.ai/http://";
+        const JSLINUX_X86_URL = "https://bellard.org/jslinux/vm.html?cpu=x86_64&mem=256&url=alpine-x86_64.cfg";
 
         const blogPosts = [
             {
@@ -1047,7 +1068,7 @@
         const commands = [
             "help", "clear", "pwd", "ls", "cd", "cat", "echo", "printf", "date",
             "whoami", "hostname", "uname", "id", "history", "env", "posts", "repos", "gitrepo",
-            "github", "web", "google", "bing", "being", "games", "snake", "2048", "mario", "neofetch",
+            "github", "web", "google", "bing", "being", "jslinux", "games", "snake", "2048", "mario", "neofetch",
             "next", "prev", "open", "close", "xdg-open", "exit"
         ];
 
@@ -1243,6 +1264,24 @@
                         <li><code>2048</code> slide tiles with arrow keys</li>
                         <li><code>mario</code> side runner inspired by platform games</li>
                     </ul>
+                </section>
+            `);
+        }
+
+        function renderJSLinux() {
+            setReaderLoading("jslinux", JSLINUX_X86_URL);
+            renderReader("jslinux", JSLINUX_X86_URL, `
+                <section class="doc embed-shell">
+                    <p class="doc-kicker">browser linux</p>
+                    <h1>jslinux x86_64 console</h1>
+                    <p>Click inside the console, then use it like a normal browser-embedded Linux terminal.</p>
+                    <iframe
+                        class="embed-frame"
+                        src="${escapeHtml(JSLINUX_X86_URL)}"
+                        title="JSLinux x86_64 console"
+                        loading="eager"
+                        referrerpolicy="no-referrer"
+                        allowfullscreen></iframe>
                 </section>
             `);
         }
@@ -2596,6 +2635,7 @@
                     ["web open <id>", "open a web search result"],
                     ["google <q>", "search Google"],
                     ["bing <q>", "search Bing"],
+                    ["jslinux", "open the JSLinux x86_64 console"],
                     ["games", "list shell games"],
                     ["snake", "play snake in the reader pane"],
                     ["2048", "play 2048 in the reader pane"],
@@ -2738,6 +2778,10 @@
             },
             async being(args) {
                 await webCommand(["search-with", "bing", ...args]);
+            },
+            jslinux() {
+                renderJSLinux();
+                appendText("opened: jslinux x86_64 console");
             },
             games() {
                 renderGamesIndex();
