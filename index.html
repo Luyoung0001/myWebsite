@@ -1,368 +1,404 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>~ hacker.land :: Luyoung</title>
-    <meta name="description" content="一个带有交互式终端风格的个人网站" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+    <title>shell</title>
+    <meta name="description" content="A quiet shell-style personal page." />
+    <meta name="theme-color" content="#000000" />
+    <link rel="icon"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='black'/%3E%3Cpath d='M14 38l8-8-8-8' fill='none' stroke='%23d7d7d7' stroke-width='5' stroke-linecap='square' stroke-linejoin='round'/%3E%3Cpath d='M30 44h20' stroke='%23d7d7d7' stroke-width='5' stroke-linecap='square'/%3E%3C/svg%3E" />
     <style>
         :root {
-            --bg: #0b0f10;
-            --panel: #0f1517;
-            --text: #c8facc;
-            --dim: #6fbf73;
-            --brand: #66ffcc;
-            --accent: #00e5a8;
-            --danger: #ff6b6b;
-            --muted: #1b2426;
-            --nav: #081314;
+            color-scheme: dark;
+            --bg: #000;
+            --panel: #050505;
+            --panel-2: #090909;
+            --border: #1c1c1c;
+            --fg: #d7d7d7;
+            --dim: #808080;
+            --blue: #5fafff;
+            --green: #87d787;
+            --red: #ff5f5f;
+            --yellow: #d7af5f;
+            --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
         }
 
         * {
-            box-sizing: border-box
+            box-sizing: border-box;
         }
 
         html,
         body {
-            height: 100%
+            width: 100%;
+            min-height: 100%;
+            margin: 0;
+            background: var(--bg);
+            color: var(--fg);
+            font-family: var(--mono);
+            font-size: 15px;
+            line-height: 1.38;
+            letter-spacing: 0;
         }
 
         body {
-            margin: 0;
-            background: radial-gradient(ellipse at 50% -10%, #0e1618 0%, var(--bg) 55%);
-            color: var(--text);
-            font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            height: 100svh;
             display: grid;
-            grid-template-rows: auto 1fr auto;
-            gap: 24px;
-            letter-spacing: .1px;
+            grid-template-rows: auto minmax(0, 1fr);
+            overflow: hidden;
         }
 
-        /* 顶部导航（更轻） */
-        .nav {
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            background: rgba(8, 19, 20, .85);
-            backdrop-filter: blur(6px);
-            border-bottom: 1px solid var(--muted);
-            padding: 8px 16px;
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .topbar {
+            min-height: 42px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 800;
-            color: var(--brand)
-        }
-
-        .brand .dot {
-            width: 10px;
-            height: 10px;
-            background: var(--accent);
-            border-radius: 50%;
-            box-shadow: 0 0 12px var(--accent)
-        }
-
-        .navlinks {
-            display: flex;
             gap: 14px;
-            flex-wrap: wrap
+            padding: 0 12px;
+            border-bottom: 1px solid #1c1c1c;
+            background: #050505;
         }
 
-        .navlinks a {
-            color: var(--text);
-            text-decoration: none;
-            padding: 5px 9px;
-            border: 1px solid var(--muted);
-            border-radius: 10px;
-            background: linear-gradient(180deg, #0b1315, #0a0f10);
-            transition: all .15s ease;
-            font-weight: 600;
-            font-size: 13px;
-        }
-
-        .navlinks a:hover {
-            border-color: var(--accent);
-            color: #0b1310;
-            background: var(--accent);
-            box-shadow: 0 0 18px rgba(0, 229, 168, .3)
-        }
-
-        .navlinks a:focus-visible,
-        input:focus-visible {
-            outline: 2px solid var(--accent);
-            outline-offset: 2px;
-            border-radius: 8px
-        }
-
-        .wrap {
-            width: 100%;
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 0 18px 24px;
-            display: grid;
-            gap: 22px
-        }
-
-        .hero {
-            margin-top: 8px;
-            padding: 18px;
-            border: 1px solid var(--muted);
-            border-radius: 14px;
-            background: linear-gradient(180deg, rgba(12, 19, 21, .7), rgba(7, 10, 11, .8));
-            display: grid;
-            grid-template-columns: 1.2fr .8fr;
-            gap: 18px;
-            align-items: center;
-        }
-
-        .hero h1 {
-            margin: 0 0 10px 0;
-            font-size: clamp(20px, 2.4vw, 26px);
-            color: var(--brand)
-        }
-
-        .hero p {
-            margin: 0;
-            color: #a3e9a9;
-            opacity: .9
-        }
-
-        .blink {
-            animation: blink 1.1s steps(2, start) infinite;
-            color: var(--accent)
-        }
-
-        /* 帮助列表：两列对齐 */
-        .help-list {
-            margin: 8px 0 0
-        }
-
-        .help-row {
-            display: grid;
-            grid-template-columns: 14ch 1fr;
-            /* 左列宽度可按需调：12–16ch */
-            gap: 12px;
-            align-items: start;
-            line-height: 1.6;
-        }
-
-        .help-row code {
-            color: var(--brand);
-            font-weight: 700
-        }
-
-        .help-row .desc {
-            color: #93d69a;
-        }
-
-        /* 列表表格：固定列宽，标题区自适应 */
-        table.posts {
-            table-layout: fixed;
-        }
-
-        table.posts col.id {
-            width: 14ch;
-        }
-
-        /* id 列定宽 */
-        table.posts col.title {
-            width: auto;
-        }
-
-        /* 标题列吃剩余 */
-        table.posts col.url {
-            width: 7ch;
-        }
-
-        /* “link” 定宽 */
-        .twrap {
-            /* 标题单元格内部：日期 + 标题 */
-            display: flex;
-            gap: 8px;
-            align-items: baseline;
-            min-width: 0;
-        }
-
-        .twrap .date {
-            color: #93d69a;
+        .topbar-status {
+            color: var(--dim);
             white-space: nowrap;
-            font-weight: 600;
         }
 
-        .twrap .ttl {
+        .topbar-status strong {
+            color: var(--fg);
+            font-weight: 400;
+        }
+
+        .topbar-links {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+
+        .topbar-links a {
+            min-height: 28px;
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid transparent;
+            border-radius: 3px;
+            padding: 0 9px;
+            color: var(--fg);
+        }
+
+        .topbar-links a:hover,
+        .topbar-links a:focus-visible {
+            border-color: #303030;
+            background: #101010;
+            color: var(--green);
+            outline: none;
+        }
+
+        .workspace {
+            min-height: 0;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 0fr);
+            gap: 0;
+            overflow: hidden;
+            transition: grid-template-columns 420ms cubic-bezier(.2, .8, .2, 1), gap 420ms cubic-bezier(.2, .8, .2, 1);
+        }
+
+        .workspace.reader-open {
+            grid-template-columns: minmax(360px, .86fr) minmax(420px, 1.14fr);
+            gap: 1px;
+        }
+
+        #terminal {
+            min-width: 0;
+            height: 100%;
+            padding: 10px 12px;
+            overflow: auto;
+            outline: none;
+            white-space: pre-wrap;
+            word-break: break-word;
+            cursor: text;
+            transition: background-color 420ms ease, padding 420ms ease;
+        }
+
+        .workspace.reader-open #terminal {
+            background: #020202;
+        }
+
+        .line {
+            min-height: 1.38em;
+        }
+
+        .prompt {
+            color: var(--green);
+        }
+
+        .path {
+            color: var(--blue);
+        }
+
+        .error {
+            color: var(--red);
+        }
+
+        .dim {
+            color: var(--dim);
+        }
+
+        .dir {
+            color: var(--blue);
+            font-weight: 700;
+        }
+
+        .exe {
+            color: var(--green);
+            font-weight: 700;
+        }
+
+        .warn {
+            color: var(--yellow);
+        }
+
+        .terminal-input {
+            display: inline-block;
+            width: min(74ch, calc(100% - 22ch));
+            min-width: 2ch;
+            border: 0;
+            outline: 0;
+            padding: 0;
+            background: transparent;
+            color: var(--fg);
+            font: inherit;
+            line-height: inherit;
+            caret-color: var(--fg);
+            vertical-align: baseline;
+            appearance: none;
+            border-radius: 0;
+        }
+
+        .terminal-input::placeholder {
+            color: #505050;
+        }
+
+        .hint {
+            color: var(--dim);
+        }
+
+        .kbd {
+            color: var(--fg);
+        }
+
+        .reader {
+            min-width: 0;
+            height: 100%;
+            border-left: 1px solid var(--border);
+            background: linear-gradient(180deg, var(--panel-2), var(--panel));
+            overflow: hidden;
+            opacity: 0;
+            transform: translateX(18px);
+            pointer-events: none;
+            transition: opacity 340ms ease, transform 420ms cubic-bezier(.2, .8, .2, 1);
+        }
+
+        .workspace.reader-open .reader {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: auto;
+        }
+
+        .reader-inner {
+            height: 100%;
+            display: grid;
+            grid-template-rows: auto minmax(0, 1fr);
+        }
+
+        .reader-head {
+            min-height: 42px;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto auto;
+            align-items: center;
+            gap: 8px;
+            padding: 0 10px 0 12px;
+            border-bottom: 1px solid var(--border);
+            background: #030303;
+        }
+
+        .reader-title {
             min-width: 0;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            color: var(--fg);
         }
 
-        /* 如果你更喜欢标题可以换行，把上一行的 white-space 改为 normal 即可 */
-        /* .twrap .ttl { white-space: normal; } */
-
-
-        @keyframes blink {
-            to {
-                visibility: hidden
-            }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            .blink {
-                animation: none
-            }
-        }
-
-        @media (min-width:901px) {
-            .hero svg {
-                transform: scale(0.9);
-                transform-origin: center right
-            }
-        }
-
-        @media (max-width:900px) {
-            .hero {
-                grid-template-columns: 1fr
-            }
-        }
-
-        /* 终端 */
-        .terminal {
-            position: relative;
-            border: 1px solid var(--muted);
-            background: linear-gradient(180deg, rgba(7, 12, 13, .9), rgba(4, 7, 8, .92)),
-                repeating-linear-gradient(0deg, rgba(102, 255, 204, .03), rgba(102, 255, 204, .03) 1px, transparent 1px, transparent 2px);
-            box-shadow: 0 0 0 1px rgba(102, 255, 204, .08) inset, 0 20px 70px rgba(0, 0, 0, .3);
-            border-radius: 14px;
-            overflow: hidden;
-        }
-
-        .term-head {
-            display: flex;
+        .reader-link,
+        .reader-close {
+            min-height: 28px;
+            display: inline-flex;
             align-items: center;
-            gap: 10px;
-            padding: 8px 10px;
-            border-bottom: 1px solid var(--muted);
-            background: linear-gradient(180deg, #0f1719, #0b1213)
-        }
-
-        .traffic {
-            display: flex;
-            gap: 8px;
-            margin-right: 6px
-        }
-
-        .dot {
-            width: 9px;
-            height: 9px;
-            border-radius: 50%
-        }
-
-        .dot.red {
-            background: #ff5f56
-        }
-
-        .dot.yellow {
-            background: #ffbd2e
-        }
-
-        .dot.green {
-            background: #27c93f
-        }
-
-        .title {
-            color: #9ce6a2;
-            font-weight: 700
-        }
-
-        .term-body {
-            padding: 16px;
-            height: min(440px, 52vh);
-            overflow: auto
-        }
-
-        .output {
-            white-space: pre-wrap;
-            line-height: 1.55
-        }
-
-        .line {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 2px
-        }
-
-        .prompt {
-            color: #6cf1b5
-        }
-
-        .path {
-            color: #91ffc9
-        }
-
-        .input {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            gap: 8px
-        }
-
-        .input input {
-            width: 100%;
+            justify-content: center;
+            border: 1px solid transparent;
+            border-radius: 3px;
             background: transparent;
-            outline: none;
-            border: none;
-            color: var(--text);
+            color: var(--dim);
             font: inherit;
-            padding: 6px 0
+            padding: 0 8px;
+            cursor: pointer;
         }
 
-        .help {
-            font-size: 12px;
-            color: #93d69a;
-            opacity: .8;
-            margin-top: 10px
+        .reader-link:hover,
+        .reader-link:focus-visible,
+        .reader-close:hover,
+        .reader-close:focus-visible {
+            border-color: #303030;
+            color: var(--green);
+            outline: none;
         }
 
-        table {
-            width: 100%;
+        .reader-body {
+            min-height: 0;
+            overflow: auto;
+            padding: 18px 20px 28px;
+            color: #d0d0d0;
+            white-space: normal;
+            word-break: normal;
+            overflow-wrap: anywhere;
+        }
+
+        .reader-loading {
+            color: var(--dim);
+            white-space: pre-wrap;
+        }
+
+        .doc {
+            max-width: 860px;
+            margin: 0 auto;
+            overflow-wrap: anywhere;
+        }
+
+        .doc-kicker {
+            margin: 0 0 10px;
+            color: var(--green);
+            font-size: .86rem;
+        }
+
+        .doc h1 {
+            margin: 0 0 14px;
+            color: #f2f2f2;
+            font-size: clamp(1.45rem, 2.6vw, 2rem);
+            line-height: 1.22;
+            font-weight: 700;
+        }
+
+        .doc h2,
+        .doc h3 {
+            margin: 24px 0 10px;
+            color: #eeeeee;
+            line-height: 1.28;
+        }
+
+        .doc h2 {
+            font-size: 1.22rem;
+            border-bottom: 1px solid #202020;
+            padding-bottom: 7px;
+        }
+
+        .doc h3 {
+            font-size: 1.05rem;
+        }
+
+        .doc p,
+        .doc li {
+            line-height: 1.76;
+            overflow-wrap: anywhere;
+        }
+
+        .doc p {
+            margin: 0 0 13px;
+        }
+
+        .doc ul,
+        .doc ol {
+            padding-left: 1.4rem;
+        }
+
+        .doc code {
+            border: 1px solid #242424;
+            border-radius: 3px;
+            background: #0c0c0c;
+            color: var(--green);
+            padding: 1px 4px;
+        }
+
+        .doc pre {
+            overflow: auto;
+            max-width: 100%;
+            border: 1px solid #202020;
+            border-radius: 5px;
+            background: #050505;
+            padding: 12px;
+            line-height: 1.55;
+        }
+
+        .doc pre code {
+            border: 0;
+            background: transparent;
+            padding: 0;
+            color: #d7d7d7;
+        }
+
+        .doc blockquote {
+            margin: 14px 0;
+            border-left: 3px solid #303030;
+            padding-left: 12px;
+            color: #a8a8a8;
+        }
+
+        .doc img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #202020;
+            border-radius: 4px;
+        }
+
+        .doc table {
+            display: block;
+            max-width: 100%;
+            overflow-x: auto;
             border-collapse: collapse;
-            margin: 8px 0
         }
 
-        th,
-        td {
-            border-bottom: 1px dashed #12352f;
-            padding: 6px 4px;
-            text-align: left
+        .repo-meta {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+            margin: 14px 0 18px;
         }
 
-        th {
-            color: #96ffd2
+        .repo-meta div {
+            border: 1px solid #202020;
+            border-radius: 4px;
+            background: #060606;
+            padding: 9px;
         }
 
-        tr:hover td {
-            background: #0d1718
+        .repo-meta span {
+            display: block;
+            color: var(--dim);
+            font-size: .78rem;
         }
 
-        footer {
-            opacity: .7;
-            font-size: 12px;
-            text-align: center;
-            padding: 6px 0 24px
+        .repo-meta strong {
+            color: var(--fg);
+            font-weight: 400;
         }
 
-        /* 隐藏但给读屏用的区域 */
         .sr-only {
             position: absolute;
             width: 1px;
@@ -374,385 +410,935 @@
             white-space: nowrap;
             border: 0;
         }
+
+        @media (max-width: 640px) {
+            html,
+            body {
+                font-size: 14px;
+            }
+
+            .topbar {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 6px;
+                padding: 8px 10px;
+            }
+
+            .topbar-links {
+                justify-content: flex-start;
+                width: 100%;
+            }
+
+            .topbar-links a {
+                padding: 0 7px;
+            }
+
+            .workspace,
+            .workspace.reader-open {
+                grid-template-columns: minmax(0, 1fr);
+                grid-template-rows: minmax(42svh, 1fr) minmax(0, 58svh);
+                gap: 1px;
+            }
+
+            #terminal {
+                padding: 9px 10px;
+            }
+
+            .reader {
+                border-left: 0;
+                border-top: 1px solid var(--border);
+                transform: translateY(16px);
+            }
+
+            .reader-body {
+                padding: 14px 12px 22px;
+            }
+
+            .repo-meta {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 
 <body>
-    <!-- 顶部导航 -->
-    <nav class="nav">
-        <div class="brand"><span class="dot"></span><span>~/hacker.land</span></div>
-        <div class="navlinks">
-            <a href="https://github.com/Luyoung0001" target="_blank" rel="noopener">GitHub</a>
-            <a href="https://space.bilibili.com/19872805?spm_id_from=333.1007.0.0" target="_blank"
-                rel="noopener">Bilibili</a>
-            <a href="https://thoughts-519.pages.dev/" target="_blank" rel="noopener">Thoughts</a>
-            <a href="https://blog.luliang.website/" target="_blank" rel="noopener">Blog</a>
+    <header class="topbar" aria-label="site navigation">
+        <div class="topbar-status"><strong>guest@luyoung</strong>:~$</div>
+        <nav class="topbar-links">
+            <a href="https://github.com/Luyoung0001" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a href="https://blog.luliang.website/" target="_blank" rel="noopener noreferrer">Blog</a>
+            <a href="https://thoughts-519.pages.dev/" target="_blank" rel="noopener noreferrer">Thoughts</a>
+            <a href="https://space.bilibili.com/19872805" target="_blank" rel="noopener noreferrer">Bilibili</a>
             <a href="mailto:791975457@qq.com">Email</a>
-        </div>
-    </nav>
-
-    <main class="wrap">
-        <section class="hero">
-            <div>
-                <h1>你好，访客 <span class="blink">▉</span></h1>
-                <p>这是一个 <strong>Linux 终端风格</strong> 的个人主页，它支持
-                    <code>ls</code>、<code>cat</code>、<code>open</code>、<code>use</code> 等命令。
-                    输入 <code>help</code> 查看所有命令。
-                </p>
+        </nav>
+    </header>
+    <div class="workspace" id="workspace">
+        <main id="terminal" role="application" aria-label="shell" tabindex="0"></main>
+        <aside class="reader" id="reader" aria-label="content reader" aria-hidden="true">
+            <div class="reader-inner">
+                <header class="reader-head">
+                    <div class="reader-title" id="reader-title">reader</div>
+                    <a class="reader-link" id="reader-link" href="#" target="_blank" rel="noopener noreferrer">source</a>
+                    <button class="reader-close" id="reader-close" type="button">close</button>
+                </header>
+                <article class="reader-body" id="reader-body">
+                    <div class="reader-loading">reader idle</div>
+                </article>
             </div>
-            <div style="justify-self:end; align-self:stretch; display:grid; place-items:center">
-                <svg width="180" height="120" viewBox="0 0 400 260" fill="none" xmlns="http://www.w3.org/2000/svg"
-                    aria-hidden>
-                    <rect x="10" y="10" width="380" height="240" rx="12" stroke="#12352f" stroke-width="3"
-                        fill="#0a1112" />
-                    <text x="24" y="48" fill="#66ffcc" font-family="JetBrains Mono, monospace" font-size="24">$ sudo
-                        make coffee</text>
-                    <text x="24" y="90" fill="#93ffd6" font-family="JetBrains Mono, monospace" font-size="24">brewing...
-                        done.</text>
-                    <circle cx="360" cy="30" r="6" fill="#27c93f" />
-                    <circle cx="336" cy="30" r="6" fill="#ffbd2e" />
-                    <circle cx="312" cy="30" r="6" fill="#ff5f56" />
-                </svg>
-            </div>
-        </section>
-
-        <!-- 终端组件 -->
-        <section class="terminal" id="terminal">
-            <div class="term-head">
-                <div class="traffic"><span class="dot red"></span><span class="dot yellow"></span><span
-                        class="dot green"></span></div>
-                <div class="title">interactive shell — type <span style="color:var(--brand)">help</span></div>
-            </div>
-            <div class="term-body" id="term-body" aria-atomic="false">
-                <div class="output" id="output"></div>
-                <div class="line">
-                    <span class="prompt" id="prompt"></span>
-                    <span class="path" id="path"></span>
-                    <div class="input"><input id="cmd" type="text" spellcheck="false" autocomplete="off"
-                            aria-label="command input"></div>
-                </div>
-                <div class="help">提示：试试
-                    <code>ls</code>、<code>ls medium</code>、<code>use blog</code>、<code>use projects</code>、<code>cat hello-world</code>、<code>clear</code>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <footer>© <span id="year"></span> Luyoung · Made with ♥ and vanilla JS</footer>
-
-    <!-- 给读屏的最新输出区域 -->
+        </aside>
+    </div>
     <div id="aria-live" class="sr-only" aria-live="polite"></div>
 
-    <!-- 无脚本时的可索引内容（SEO 兜底） -->
-    <noscript>
-        <div class="wrap" style="padding-bottom:32px">
-            <h2 style="color:#66ffcc">项目（无脚本版）</h2>
-            <ul>
-                <li><a href="https://github.com/Luyoung0001/mydebugger">my_debugger</a></li>
-                <li><a href="https://github.com/Luyoung0001/cpp_design">练习C++11的例子</a></li>
-                <li><a href="https://github.com/Luyoung0001/trans_api">golang增删改查后端</a></li>
-                <li><a href="https://github.com/Luyoung0001/translate_all">cmd_line_tool前端</a></li>
-                <li><a href="https://github.com/Luyoung0001/Loongarch_1">手撕6级流水线处理器,linux 启动!</a></li>
-            </ul>
-            <p>博客与更多内容请开启 JavaScript 后使用命令行界面浏览。</p>
-        </div>
-    </noscript>
-
     <script>
-        const SOURCES = {
-            blog: { label: "个人博客", posts: [] }, // 运行时从 posts.json 填充
-            projects: {
-                label: "项目",
-                posts: [
-                    { id: "debugger", title: "my_debugger", url: "https://github.com/Luyoung0001/mydebugger" },
-                    { id: "cpp_design", title: "练习C++11的例子", url: "https://github.com/Luyoung0001/cpp_design" },
-                    { id: "trans_api", title: "golang增删改查后端", url: "https://github.com/Luyoung0001/trans_api" },
-                    { id: "translator", title: "cmd_line_tool前端", url: "https://github.com/Luyoung0001/translate_all" },
-                    { id: "CPU", title: "手撕6级流水线处理器,linux 启动!", url: "https://github.com/Luyoung0001/Loongarch_1" },
-                ]
-            },
+        const workspace = document.getElementById("workspace");
+        const terminal = document.getElementById("terminal");
+        const reader = document.getElementById("reader");
+        const readerTitle = document.getElementById("reader-title");
+        const readerLink = document.getElementById("reader-link");
+        const readerBody = document.getElementById("reader-body");
+        const readerClose = document.getElementById("reader-close");
+        const ariaLive = document.getElementById("aria-live");
+        const commandInput = document.createElement("input");
+        commandInput.className = "terminal-input";
+        commandInput.type = "text";
+        commandInput.autocomplete = "off";
+        commandInput.autocapitalize = "off";
+        commandInput.spellcheck = false;
+        commandInput.setAttribute("aria-label", "shell command");
+
+        const links = {
+            github: "https://github.com/Luyoung0001",
+            blog: "https://blog.luliang.website/",
+            thoughts: "https://thoughts-519.pages.dev/",
+            bilibili: "https://space.bilibili.com/19872805",
+            email: "mailto:791975457@qq.com"
         };
 
-        const $ = s => document.querySelector(s);
-        const $$ = s => Array.from(document.querySelectorAll(s));
+        const blogPosts = [
+            {
+                id: "la",
+                title: "LA 框架的使用",
+                date: "2026-04-12",
+                url: "https://blog.luliang.website/2026/04/12/LA%20%E6%A1%86%E6%9E%B6%E7%9A%84%E4%BD%BF%E7%94%A8/"
+            },
+            {
+                id: "nes",
+                title: "毕设18：硬件加速 NES",
+                date: "2026-04-16",
+                url: "https://blog.luliang.website/2026/04/16/%E6%AF%95%E8%AE%BE18%EF%BC%9A%E7%A1%AC%E4%BB%B6%E5%8A%A0%E9%80%9FNES/"
+            },
+            {
+                id: "jit-nes",
+                title: "毕设16：JIT 跑 NES",
+                date: "2026-01-31",
+                url: "https://blog.luliang.website/2026/01/31/%E6%AF%95%E8%AE%BE16%EF%BC%9AJIT%E8%B7%91NES/"
+            },
+            {
+                id: "qemu",
+                title: "毕设17：利用 qemu 做快速仿真",
+                date: "2026-01-30",
+                url: "https://blog.luliang.website/2026/01/30/%E6%AF%95%E8%AE%BE17%EF%BC%9Aqemu%20%E5%8A%A0%E5%BF%AB%E4%BB%BF%E7%9C%9F%E9%80%9F%E5%BA%A6/"
+            }
+        ];
 
-        const output = $('#output');
-        const cmdInput = $('#cmd');
-        const pathEl = $('#path');
-        const promptEl = $('#prompt');
-        const ariaLive = $('#aria-live');
+        const repos = [
+            { id: "cpu", name: "Loongarch_1", owner: "Luyoung0001" },
+            { id: "debugger", name: "mydebugger", owner: "Luyoung0001" },
+            { id: "trans-api", name: "trans_api", owner: "Luyoung0001" },
+            { id: "translator", name: "translate_all", owner: "Luyoung0001" },
+            { id: "cpp", name: "cpp_design", owner: "Luyoung0001" }
+        ];
+
+        const files = {
+            "/home/guest": {
+                type: "dir",
+                entries: {
+                    "README": {
+                        type: "file",
+                        mode: "-rw-r--r--",
+                        size: 97,
+                        content: [
+                            "Luyoung",
+                            "",
+                            "systems / low-level software / FPGA / debugging",
+                            "",
+                            "Try: posts, repos, open post la, open repo cpu"
+                        ].join("\n")
+                    },
+                    "links": { type: "dir", mode: "drwxr-xr-x", size: 160 }
+                }
+            },
+            "/home/guest/links": {
+                type: "dir",
+                entries: Object.fromEntries(Object.entries(links).map(([name, href]) => [
+                    name,
+                    { type: "file", mode: "-rw-r--r--", size: href.length, content: href }
+                ]))
+            }
+        };
 
         const state = {
-            username: 'guest',
-            host: 'hacker.land',
-            site: 'blog', // 当前活动站点
-            history: [],
+            user: "guest",
+            host: "luyoung",
+            cwd: "/home/guest",
+            history: JSON.parse(localStorage.getItem("history") || "[]").slice(-100),
             historyIndex: -1,
+            input: null,
+            promptLine: null,
+            readerOpen: false,
+            running: false
         };
 
-        function setPrompt() {
-            promptEl.textContent = `${state.username}@${state.host}`;
-            pathEl.textContent = `:${state.site}$`;
+        const commands = [
+            "help", "clear", "pwd", "ls", "cd", "cat", "echo", "printf", "date",
+            "whoami", "hostname", "uname", "id", "history", "env", "posts", "repos",
+            "open", "close", "xdg-open", "exit"
+        ];
+
+        const welcomeLines = [
+            `<span class="hint">type <span class="kbd">help</span> and press <span class="kbd">Enter</span>. try <span class="kbd">posts</span>, <span class="kbd">repos</span>, <span class="kbd">open post la</span>.</span>`
+        ];
+
+        function escapeHtml(value) {
+            return String(value ?? "").replace(/[&<>"]/g, char => ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;"
+            }[char]));
         }
 
-        function print(html, ariaText = '') {
-            const line = document.createElement('div');
+        function stripHtml(value) {
+            const div = document.createElement("div");
+            div.innerHTML = value;
+            return div.textContent || "";
+        }
+
+        function promptHtml() {
+            const home = "/home/guest";
+            const path = state.cwd === home ? "~" : state.cwd.replace(`${home}/`, "~/");
+            return `<span class="prompt">${state.user}@${state.host}</span>:<span class="path">${escapeHtml(path)}</span>$ `;
+        }
+
+        function appendLine(html = "") {
+            const line = document.createElement("div");
+            line.className = "line";
             line.innerHTML = html;
-            output.appendChild(line);
-            if (ariaText) {
-                // 只把最新一句写入 aria-live，避免读屏反复朗读历史
-                ariaLive.textContent = ariaText;
+            terminal.appendChild(line);
+            ariaLive.textContent = stripHtml(html);
+            terminal.scrollTop = terminal.scrollHeight;
+            return line;
+        }
+
+        function appendText(text = "") {
+            for (const line of String(text).split("\n")) {
+                appendLine(escapeHtml(line));
             }
-            // 自动滚动
-            const body = document.getElementById('term-body');
-            body.scrollTop = body.scrollHeight;
         }
 
-        function sanitize(text) {
-            return text.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+        function setReaderLoading(title, url) {
+            state.readerOpen = true;
+            workspace.classList.add("reader-open");
+            reader.setAttribute("aria-hidden", "false");
+            readerTitle.textContent = title;
+            readerLink.href = url || "#";
+            readerBody.innerHTML = `<div class="reader-loading">fetching ${escapeHtml(title)} ...</div>`;
+            terminal.scrollTop = terminal.scrollHeight;
         }
 
-        function help() {
-            const rows = [
-                ['help', '显示帮助'],
-                ['sites', '列出可用站点来源'],
-                ['use <source>', '切换活动站点（例如：use blog）'],
-                ['ls [source]', '列出文章（缺省为当前站点）'],
-                ['cat <id>', '新标签页打开文章（当前站点）'],
-                ['cat <source>/<id>', '指定站点新标签页打开文章'],
-                ['open <id>', '新标签页打开文章（与 cat 等效）'],
-                ['clear', '清屏（或 Ctrl+L）'],
-                ['about', '关于本站'],
-            ];
-            const html =
-                `<div>可用命令：</div>
-     <div class="help-list">
-       ${rows.map(([k, v]) =>
-                    `<div class="help-row"><code>${sanitize(k)}</code><div class="desc">${sanitize(v)}</div></div>`
-                ).join('')}
-     </div>`;
-            print(html, '显示帮助');
-        }
-
-        function list(source) {
-            const key = source || state.site;
-            const pack = SOURCES[key];
-            if (!pack) {
-                print(`<span style="color:var(--danger)">未知站点：</span> ${sanitize(key)}\n使用 <code>sites</code> 查看可用站点。`, '未知站点');
-                return;
-            }
-            if (!pack.posts || !pack.posts.length) {
-                print(`<em>（${sanitize(pack.label || key)} 暂无文章）</em>`, '暂无文章');
-                return;
-            }
-
-            // 允许 posts 中有可选字段：date（'07-25' 这种）或 time（ISO）
-            const rows = pack.posts.map(p => {
-                // 兼容：如果 posts.json 里是 ISO 日期，你也可以在这里格式化成 MM-DD
-                const date = p.date ? String(p.date) :
-                    (p.time ? new Date(p.time).toISOString().slice(5, 10) : '');
-
-                const titleCell =
-                    `<div class="twrap">
-         ${date ? `<span class="date">${sanitize(date)}</span><span class="sep" aria-hidden>·</span>` : ''}
-         <span class="ttl" title="${sanitize(p.title)}">${sanitize(p.title)}</span>
-       </div>`;
-
-                return `<tr>
-              <td>${sanitize(p.id)}</td>
-              <td>${titleCell}</td>
-              <td><a href="${p.url}" target="_blank" rel="noopener">link</a></td>
-            </tr>`;
-            }).join('');
-
-            const table =
-                `<div>来源：<strong>${sanitize(pack.label || key)}</strong>（键：<code>${sanitize(key)}</code>）</div>
-     <table class="posts">
-       <colgroup>
-         <col class="id"><col class="title"><col class="url">
-       </colgroup>
-       <thead>
-         <tr><th>ID</th><th>标题</th><th>URL</th></tr>
-       </thead>
-       <tbody>${rows}</tbody>
-     </table>`;
-
-            print(table, `列出 ${pack.label || key} 列表`);
-        }
-        // 更安全的外链打开
-        function safeOpen(url, newTab) {
-            try {
-                const u = new URL(url, location.href);
-                if (!/^https?:$/.test(u.protocol)) throw new Error('bad scheme');
-                if (newTab) {
-                    window.open(u.href, '_blank', 'noopener,noreferrer');
-                } else {
-                    window.location.href = u.href;
+        function closeReader() {
+            state.readerOpen = false;
+            workspace.classList.remove("reader-open");
+            reader.setAttribute("aria-hidden", "true");
+            setTimeout(() => {
+                if (!state.readerOpen) {
+                    readerTitle.textContent = "reader";
+                    readerLink.href = "#";
+                    readerBody.innerHTML = `<div class="reader-loading">reader idle</div>`;
                 }
-            } catch {
-                print(`<span style="color:var(--danger)">非法链接：</span> ${sanitize(url)}`, '非法链接');
-            }
+            }, 430);
+            focusInput();
         }
 
-        function openArticle(spec, inNewTab = false) {
-            // 支持：id 或 source/id 或 直接 URL
-            if (/^https?:\/\//i.test(spec)) {
-                return safeOpen(spec, inNewTab);
-            }
-            let src = state.site, id = spec;
-            if (spec.includes('/')) {
-                const m = spec.match(/^([^/]+)\/(.+)$/);
-                if (m) { src = m[1]; id = m[2]; }
-            }
-            const pack = SOURCES[src];
-            if (!pack) { print(`<span style="color:var(--danger)">未知站点：</span> ${sanitize(src)}`, '未知站点'); return; }
-            const post = (pack.posts || []).find(p => p.id === id);
-            if (!post) { print(`<span style="color:var(--danger)">未找到文章：</span> ${sanitize(id)}（站点 <code>${sanitize(src)}</code>）`, '未找到文章'); return; }
-            safeOpen(post.url, inNewTab);
+        function renderReader(title, url, html) {
+            readerTitle.textContent = title;
+            readerLink.href = url;
+            readerBody.innerHTML = html;
+            readerBody.scrollTop = 0;
         }
 
-        function about() {
-            print(
-                `作者：<strong>Luyoung</strong>\n` +
-                `主页：<a href="https://blog.luliang.website/" target="_blank" rel="noopener">blog.luliang.website</a>\n` +
-                `仓库：<a href="https://github.com/Luyoung0001/myWebsite" target="_blank" rel="noopener">GitHub</a>`,
-                '关于本站'
-            );
+        function newPrompt() {
+            const line = appendLine(`${promptHtml()}<span class="input-slot"></span>`);
+            state.promptLine = line;
+            state.input = commandInput;
+            commandInput.value = "";
+            line.querySelector(".input-slot").appendChild(commandInput);
+            focusInput();
         }
 
-        function run(input) {
-            const raw = input.trim();
-            if (!raw) { help(); return; } // 空输入，回显帮助简化上手
-            const [cmd, ...args] = raw.split(/\s+/);
-            switch (cmd) {
-                case 'help': help(); break;
-                case 'sites':
-                    print(`可用站点：\n` + Object.keys(SOURCES).map(k => `  - ${k} (${SOURCES[k].label || k})`).join('\n'), '列出站点');
-                    break;
-                case 'use':
-                    if (!args[0]) { print('用法：use <source>', '用法提示'); break; }
-                    if (!SOURCES[args[0]]) { print(`<span style="color:var(--danger)">未知站点：</span> ${sanitize(args[0])}`, '未知站点'); break; }
-                    state.site = args[0]; setPrompt(); print(`已切换到站点：<strong>${sanitize(args[0])}</strong>`, '切换站点');
-                    break;
-                case 'ls':
-                    list(args[0]);
-                    break;
-                case 'cat':
-                    if (!args[0]) { print('用法：cat <id> 或 cat <source>/<id>', '用法提示'); break; }
-                    openArticle(args[0], true); // 新标签页（符合你的期望）
-                    break;
-                case 'open':
-                    if (!args[0]) { print('用法：open <id> 或 open <source>/<id>', '用法提示'); break; }
-                    openArticle(args[0], true); // 新标签
-                    break;
-                case 'clear':
-                    output.innerHTML = ''; ariaLive.textContent = ''; break;
-                case 'about':
-                    about(); break;
-                default:
-                    print(`<span style="color:var(--danger)">命令未找到：</span> ${sanitize(cmd)} ；试试 <code>help</code>`, '命令未找到');
-            }
+        function freezePrompt(command) {
+            state.promptLine.innerHTML = `${promptHtml()}${escapeHtml(command)}`;
+            state.input = null;
+            state.promptLine = null;
         }
 
-        // 自动补全（Tab）：命令 / 站点 / 当前源 id
-        const COMMANDS = ['help', 'sites', 'use', 'ls', 'cat', 'open', 'clear', 'about'];
-        function getCompletions(prefix) {
-            // 先命令
-            const pool = new Set(COMMANDS);
-            // 加站点
-            Object.keys(SOURCES).forEach(k => pool.add(k));
-            // 加当前/指定源的 id（支持 "cat pr<Tab>"）
-            const tokens = cmdInput.value.trim().split(/\s+/);
-            const first = tokens[0] || '';
-            let src = state.site;
-            if ((first === 'cat' || first === 'open' || first === 'ls') && tokens[1]) {
-                if (tokens[1].includes('/')) {
-                    const m = tokens[1].match(/^([^/]+)\/(.*)$/);
-                    if (m && SOURCES[m[1]]) src = m[1];
+        function focusInput() {
+            if (!state.input) return;
+            commandInput.focus({ preventScroll: true });
+            commandInput.setSelectionRange(commandInput.value.length, commandInput.value.length);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function saveHistory() {
+            state.history = state.history.slice(-100);
+            localStorage.setItem("history", JSON.stringify(state.history));
+        }
+
+        function parse(input) {
+            const tokens = [];
+            let token = "";
+            let quote = "";
+            let escaped = false;
+
+            for (const char of input) {
+                if (escaped) {
+                    token += char;
+                    escaped = false;
+                    continue;
                 }
-                (SOURCES[src].posts || []).forEach(p => {
-                    pool.add(p.id);
-                    pool.add(`${src}/${p.id}`);
+                if (char === "\\") {
+                    escaped = true;
+                    continue;
+                }
+                if ((char === "\"" || char === "'") && !quote) {
+                    quote = char;
+                    continue;
+                }
+                if (char === quote) {
+                    quote = "";
+                    continue;
+                }
+                if (/\s/.test(char) && !quote) {
+                    if (token) tokens.push(token);
+                    token = "";
+                    continue;
+                }
+                token += char;
+            }
+
+            if (token) tokens.push(token);
+            return { tokens, quoteOpen: Boolean(quote) };
+        }
+
+        function resolvePath(path = ".") {
+            if (path === "~") return "/home/guest";
+            if (path.startsWith("~/")) return `/home/guest/${path.slice(2)}`;
+            if (path.startsWith("/")) return normalizePath(path);
+            return normalizePath(`${state.cwd}/${path}`);
+        }
+
+        function normalizePath(path) {
+            const parts = [];
+            for (const part of path.split("/")) {
+                if (!part || part === ".") continue;
+                if (part === "..") {
+                    parts.pop();
+                    continue;
+                }
+                parts.push(part);
+            }
+            return `/${parts.join("/")}`;
+        }
+
+        function parentPath(path) {
+            const parts = path.split("/").filter(Boolean);
+            parts.pop();
+            return `/${parts.join("/")}`;
+        }
+
+        function baseName(path) {
+            return path.split("/").filter(Boolean).at(-1) || "/";
+        }
+
+        function stat(path) {
+            if (files[path]) return files[path];
+            const parent = files[parentPath(path)];
+            return parent?.entries?.[baseName(path)] || null;
+        }
+
+        function fileContent(path) {
+            const node = stat(path);
+            return node?.type === "file" ? node.content : null;
+        }
+
+        function listDir(path, long = false, all = false) {
+            const dir = files[path];
+            if (!dir || dir.type !== "dir") return null;
+
+            const entries = Object.entries(dir.entries);
+            const names = all ? [[".", { type: "dir", mode: "drwxr-xr-x", size: 96 }], ["..", { type: "dir", mode: "drwxr-xr-x", size: 96 }], ...entries] : entries;
+
+            if (!long) {
+                return names.map(([name, node]) => {
+                    const cls = node.type === "dir" ? "dir" : "";
+                    return cls ? `<span class="${cls}">${escapeHtml(name)}</span>` : escapeHtml(name);
+                }).join("  ");
+            }
+
+            const total = names.length * 4;
+            const rows = names.map(([name, node]) => {
+                const mode = node.mode || (node.type === "dir" ? "drwxr-xr-x" : "-rw-r--r--");
+                const size = String(node.size || 96).padStart(5, " ");
+                const date = "Jun 16 16:00";
+                const label = node.type === "dir" ? `<span class="dir">${escapeHtml(name)}</span>` : escapeHtml(name);
+                return `${mode} 1 guest guest ${size} ${date} ${label}`;
+            });
+            return [`total ${total}`, ...rows].join("\n");
+        }
+
+        const builtins = {
+            help() {
+                appendText([
+                    "GNU bash, version 5.2.0(compatible)",
+                    "",
+                    "These shell commands are available:",
+                    "  help                show this help",
+                    "  pwd                 print working directory",
+                    "  ls [-la] [path]     list files",
+                    "  cd [path]           change directory",
+                    "  cat <file>          print file",
+                    "  echo <text>         print text",
+                    "  date                print local date",
+                    "  whoami              print user",
+                    "  uname [-a]          print system name",
+                    "  history             print command history",
+                    "  posts               list readable blog posts",
+                    "  repos               list readable github repos",
+                    "  open post <id>      render a blog post in the right pane",
+                    "  open repo <id>      render a github repo in the right pane",
+                    "  close               close the right pane",
+                    "  clear               clear terminal",
+                    "  xdg-open <target>   open github/blog/thoughts/bilibili/email"
+                ].join("\n"));
+            },
+            clear() {
+                terminal.innerHTML = "";
+            },
+            pwd() {
+                appendText(state.cwd);
+            },
+            ls(args) {
+                const flags = args.filter(arg => arg.startsWith("-")).join("");
+                const paths = args.filter(arg => !arg.startsWith("-"));
+                const target = resolvePath(paths[0] || ".");
+                const long = flags.includes("l");
+                const all = flags.includes("a");
+                const node = stat(target);
+
+                if (!node) {
+                    appendLine(`<span class="error">ls: cannot access '${escapeHtml(paths[0] || ".")}': No such file or directory</span>`);
+                    return;
+                }
+                if (node.type === "file") {
+                    appendText(baseName(target));
+                    return;
+                }
+                appendLine(listDir(target, long, all));
+            },
+            cd(args) {
+                const target = resolvePath(args[0] || "~");
+                const node = stat(target);
+
+                if (!node) {
+                    appendLine(`<span class="error">bash: cd: ${escapeHtml(args[0] || "~")}: No such file or directory</span>`);
+                    return;
+                }
+                if (node.type !== "dir") {
+                    appendLine(`<span class="error">bash: cd: ${escapeHtml(args[0])}: Not a directory</span>`);
+                    return;
+                }
+                state.cwd = target;
+            },
+            cat(args) {
+                if (!args.length) return;
+
+                for (const arg of args) {
+                    const target = resolvePath(arg);
+                    const node = stat(target);
+                    if (!node) {
+                        appendLine(`<span class="error">cat: ${escapeHtml(arg)}: No such file or directory</span>`);
+                    } else if (node.type === "dir") {
+                        appendLine(`<span class="error">cat: ${escapeHtml(arg)}: Is a directory</span>`);
+                    } else {
+                        appendText(fileContent(target));
+                    }
+                }
+            },
+            echo(args) {
+                appendText(args.join(" "));
+            },
+            printf(args) {
+                appendText(args.join(" ").replace(/\\n/g, "\n"));
+            },
+            date() {
+                appendText(new Date().toString());
+            },
+            whoami() {
+                appendText(state.user);
+            },
+            hostname() {
+                appendText(state.host);
+            },
+            uname(args) {
+                appendText(args.includes("-a")
+                    ? "Linux luyoung 6.6.0-static #1 SMP PREEMPT_DYNAMIC x86_64 GNU/Linux"
+                    : "Linux");
+            },
+            id() {
+                appendText("uid=1000(guest) gid=1000(guest) groups=1000(guest)");
+            },
+            history() {
+                state.history.forEach((item, index) => {
+                    appendText(`${String(index + 1).padStart(5, " ")}  ${item}`);
                 });
+            },
+            env() {
+                appendText([
+                    "SHELL=/bin/bash",
+                    "USER=guest",
+                    "HOME=/home/guest",
+                    "HOSTNAME=luyoung",
+                    "TERM=xterm-256color",
+                    "PWD=" + state.cwd
+                ].join("\n"));
+            },
+            posts() {
+                const rows = blogPosts.map(post => `${post.id.padEnd(10, " ")} ${post.date}  ${post.title}`);
+                appendText(rows.join("\n"));
+            },
+            repos() {
+                const rows = repos.map(repo => `${repo.id.padEnd(10, " ")} ${repo.owner}/${repo.name}`);
+                appendText(rows.join("\n"));
+            },
+            "xdg-open"(args) {
+                openTarget(args[0], "xdg-open");
+            },
+            async open(args) {
+                await openSmart(args);
+            },
+            close() {
+                closeReader();
+                appendText("reader closed");
+            },
+            exit() {
+                appendText("logout");
             }
-            return Array.from(pool).filter(x => x.startsWith(prefix));
-        }
+        };
 
-        function onSubmit() {
-            const value = cmdInput.value;
-            if (!value.trim()) { help(); return; }
-            print(`<span style="color:#7df5bf">$</span> ${sanitize(value)}`);
-            ariaLive.textContent = value;
-            state.history.push(value);
-            state.historyIndex = state.history.length;
-            cmdInput.value = '';
-            run(value);
-        }
-
-        cmdInput.addEventListener('keydown', (e) => {
-            // 回车
-            if (e.key === 'Enter') { e.preventDefault(); onSubmit(); return; }
-            // 历史
-            if (e.key === 'ArrowUp') {
-                if (state.historyIndex > 0) { state.historyIndex--; cmdInput.value = state.history[state.historyIndex] || ''; setTimeout(() => cmdInput.setSelectionRange(cmdInput.value.length, cmdInput.value.length), 0); }
+        function openTarget(target, command) {
+            if (!target) {
+                appendLine(`<span class="error">${command}: missing operand</span>`);
                 return;
             }
-            if (e.key === 'ArrowDown') {
-                if (state.historyIndex < state.history.length) { state.historyIndex++; cmdInput.value = state.history[state.historyIndex] || ''; setTimeout(() => cmdInput.setSelectionRange(cmdInput.value.length, cmdInput.value.length), 0); }
+
+            const href = links[target] || fileContent(resolvePath(target)) || target;
+            try {
+                const url = new URL(href, location.href);
+                if (!["http:", "https:", "mailto:"].includes(url.protocol)) throw new Error("bad protocol");
+                window.open(url.href, "_blank", "noopener,noreferrer");
+            } catch {
+                appendLine(`<span class="error">${command}: ${escapeHtml(target)}: No such file or URL</span>`);
+            }
+        }
+
+        function findPost(id) {
+            return blogPosts.find(post => post.id === id || post.title === id);
+        }
+
+        function findRepo(id) {
+            return repos.find(repo => repo.id === id || repo.name === id || `${repo.owner}/${repo.name}` === id);
+        }
+
+        async function openSmart(args) {
+            if (!args.length) {
+                appendLine(`<span class="error">open: missing operand</span>`);
                 return;
             }
-            // Ctrl/Cmd + L 清屏
-            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'l') {
-                e.preventDefault(); output.innerHTML = ''; ariaLive.textContent = ''; return;
+
+            const [kind, value] = args;
+            if (kind === "post") {
+                await openPost(value);
+                return;
             }
-            // Tab 自动补全
-            if (e.key === 'Tab') {
-                e.preventDefault();
-                const text = cmdInput.value;
-                const parts = text.trim().split(/\s+/);
-                const last = parts[parts.length - 1] || '';
-                if (!last) { return; }
-                const matches = getCompletions(last);
-                if (matches.length === 1) {
-                    parts[parts.length - 1] = matches[0];
-                    cmdInput.value = parts.join(' ');
-                } else if (matches.length > 1) {
-                    print(matches.join('  '), '可用补全项');
+            if (kind === "repo") {
+                await openRepo(value);
+                return;
+            }
+            if (findPost(kind)) {
+                await openPost(kind);
+                return;
+            }
+            if (findRepo(kind)) {
+                await openRepo(kind);
+                return;
+            }
+            openTarget(kind, "open");
+        }
+
+        async function openPost(id) {
+            const post = findPost(id);
+            if (!post) {
+                appendLine(`<span class="error">open: post not found: ${escapeHtml(id || "")}</span>`);
+                return;
+            }
+
+            appendText(`fetch ${post.url}`);
+            setReaderLoading(post.title, post.url);
+
+            try {
+                const response = await fetch(post.url);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const html = await response.text();
+                const doc = new DOMParser().parseFromString(html, "text/html");
+                const rendered = renderBlogDocument(doc, post);
+                renderReader(post.title, post.url, rendered);
+                appendText(`rendered post: ${post.id}`);
+            } catch (error) {
+                renderReader(post.title, post.url, renderFallback(post.title, post.url, error));
+                appendLine(`<span class="error">open: fetch failed: ${escapeHtml(error.message)}</span>`);
+            }
+        }
+
+        async function openRepo(id) {
+            const repo = findRepo(id);
+            if (!repo) {
+                appendLine(`<span class="error">open: repo not found: ${escapeHtml(id || "")}</span>`);
+                return;
+            }
+
+            const repoUrl = `https://github.com/${repo.owner}/${repo.name}`;
+            appendText(`fetch https://api.github.com/repos/${repo.owner}/${repo.name}`);
+            setReaderLoading(`${repo.owner}/${repo.name}`, repoUrl);
+
+            try {
+                const [metaResponse, readmeResponse] = await Promise.all([
+                    fetch(`https://api.github.com/repos/${repo.owner}/${repo.name}`),
+                    fetch(`https://api.github.com/repos/${repo.owner}/${repo.name}/readme`)
+                ]);
+                if (!metaResponse.ok) throw new Error(`repo HTTP ${metaResponse.status}`);
+                const meta = await metaResponse.json();
+                let readme = "";
+                if (readmeResponse.ok) {
+                    const payload = await readmeResponse.json();
+                    readme = decodeBase64(payload.content || "");
                 }
+                renderReader(`${repo.owner}/${repo.name}`, repoUrl, renderRepoDocument(meta, readme));
+                appendText(`rendered repo: ${repo.id}`);
+            } catch (error) {
+                renderReader(`${repo.owner}/${repo.name}`, repoUrl, renderFallback(`${repo.owner}/${repo.name}`, repoUrl, error));
+                appendLine(`<span class="error">open: fetch failed: ${escapeHtml(error.message)}</span>`);
             }
+        }
+
+        function renderBlogDocument(doc, post) {
+            const title = doc.querySelector("meta[property='og:title']")?.content || doc.querySelector("h1")?.textContent || post.title;
+            const description = doc.querySelector("meta[property='og:description']")?.content || "";
+            const article = doc.querySelector("article .markdown-body")
+                || doc.querySelector(".markdown-body")
+                || doc.querySelector("article")
+                || doc.querySelector("#board")
+                || doc.body;
+
+            const clone = article.cloneNode(true);
+            clone.querySelectorAll("script, style, nav, .toc, .post-meta, .post-prevnext, #comments, .modal").forEach(node => node.remove());
+            absolutizeUrls(clone, post.url);
+            sanitizeNode(clone);
+
+            return `
+                <section class="doc">
+                    <p class="doc-kicker">blog / ${escapeHtml(post.date)}</p>
+                    <h1>${escapeHtml(title)}</h1>
+                    ${description ? `<blockquote>${escapeHtml(description)}</blockquote>` : ""}
+                    ${clone.innerHTML}
+                </section>
+            `;
+        }
+
+        function renderRepoDocument(meta, readme) {
+            const description = meta.description || "No description.";
+            return `
+                <section class="doc">
+                    <p class="doc-kicker">github repository</p>
+                    <h1>${escapeHtml(meta.full_name)}</h1>
+                    <p>${escapeHtml(description)}</p>
+                    <div class="repo-meta">
+                        <div><span>stars</span><strong>${escapeHtml(meta.stargazers_count)}</strong></div>
+                        <div><span>forks</span><strong>${escapeHtml(meta.forks_count)}</strong></div>
+                        <div><span>language</span><strong>${escapeHtml(meta.language || "mixed")}</strong></div>
+                    </div>
+                    ${readme ? markdownToHtml(readme) : "<p class=\"dim\">README not available.</p>"}
+                </section>
+            `;
+        }
+
+        function renderFallback(title, url, error) {
+            return `
+                <section class="doc">
+                    <p class="doc-kicker">fetch failed</p>
+                    <h1>${escapeHtml(title)}</h1>
+                    <p class="error">${escapeHtml(error.message || String(error))}</p>
+                    <p><a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">open source page</a></p>
+                </section>
+            `;
+        }
+
+        function absolutizeUrls(root, baseUrl) {
+            root.querySelectorAll("[href]").forEach(node => {
+                node.setAttribute("href", new URL(node.getAttribute("href"), baseUrl).href);
+                node.setAttribute("target", "_blank");
+                node.setAttribute("rel", "noopener noreferrer");
+            });
+            root.querySelectorAll("[src]").forEach(node => {
+                node.setAttribute("src", new URL(node.getAttribute("src"), baseUrl).href);
+            });
+        }
+
+        function sanitizeNode(root) {
+            root.querySelectorAll("*").forEach(node => {
+                for (const attr of [...node.attributes]) {
+                    if (/^on/i.test(attr.name)) node.removeAttribute(attr.name);
+                    if (attr.name === "style") node.removeAttribute(attr.name);
+                    if (attr.name === "class") node.removeAttribute(attr.name);
+                }
+            });
+        }
+
+        function decodeBase64(value) {
+            const binary = atob(String(value).replace(/\s/g, ""));
+            const bytes = Uint8Array.from(binary, char => char.charCodeAt(0));
+            return new TextDecoder("utf-8").decode(bytes);
+        }
+
+        function markdownToHtml(markdown) {
+            const lines = markdown.replace(/\r\n/g, "\n").split("\n");
+            const html = [];
+            let inCode = false;
+            let listOpen = false;
+            let paragraph = [];
+
+            function flushParagraph() {
+                if (!paragraph.length) return;
+                html.push(`<p>${inlineMarkdown(paragraph.join(" "))}</p>`);
+                paragraph = [];
+            }
+
+            function closeList() {
+                if (!listOpen) return;
+                html.push("</ul>");
+                listOpen = false;
+            }
+
+            for (const line of lines) {
+                if (line.startsWith("```")) {
+                    if (inCode) {
+                        html.push("</code></pre>");
+                        inCode = false;
+                    } else {
+                        flushParagraph();
+                        closeList();
+                        html.push("<pre><code>");
+                        inCode = true;
+                    }
+                    continue;
+                }
+                if (inCode) {
+                    html.push(escapeHtml(line));
+                    continue;
+                }
+                if (!line.trim()) {
+                    flushParagraph();
+                    closeList();
+                    continue;
+                }
+                const heading = line.match(/^(#{1,3})\s+(.+)$/);
+                if (heading) {
+                    flushParagraph();
+                    closeList();
+                    const level = heading[1].length;
+                    html.push(`<h${level}>${inlineMarkdown(heading[2])}</h${level}>`);
+                    continue;
+                }
+                const item = line.match(/^\s*[-*]\s+(.+)$/);
+                if (item) {
+                    flushParagraph();
+                    if (!listOpen) {
+                        html.push("<ul>");
+                        listOpen = true;
+                    }
+                    html.push(`<li>${inlineMarkdown(item[1])}</li>`);
+                    continue;
+                }
+                paragraph.push(line.trim());
+            }
+
+            flushParagraph();
+            closeList();
+            if (inCode) html.push("</code></pre>");
+            return html.join("\n");
+        }
+
+        function inlineMarkdown(value) {
+            return escapeHtml(value)
+                .replace(/`([^`]+)`/g, "<code>$1</code>")
+                .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+                .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+        }
+
+        async function run(commandLine) {
+            const parsed = parse(commandLine);
+            if (parsed.quoteOpen) {
+                appendLine(`<span class="error">bash: unexpected EOF while looking for matching quote</span>`);
+                return;
+            }
+
+            const [command, ...args] = parsed.tokens;
+            if (!command) return;
+
+            const builtin = builtins[command];
+            if (!builtin) {
+                appendLine(`<span class="error">bash: ${escapeHtml(command)}: command not found</span>`);
+                return;
+            }
+
+            await builtin(args);
+        }
+
+        function currentInput() {
+            return state.input ? commandInput.value : "";
+        }
+
+        function setCurrentInput(value) {
+            if (!state.input) return;
+            commandInput.value = value;
+            focusInput();
+        }
+
+        async function submit() {
+            if (state.running) return;
+            state.running = true;
+            const commandLine = currentInput();
+            freezePrompt(commandLine);
+
+            try {
+                if (commandLine.trim()) {
+                    state.history.push(commandLine);
+                    state.historyIndex = state.history.length;
+                    saveHistory();
+                    await run(commandLine);
+                }
+
+                if (!state.input) newPrompt();
+            } finally {
+                state.running = false;
+                focusInput();
+            }
+        }
+
+        function complete() {
+            const value = currentInput();
+            const cursorToken = value.split(/\s+/).at(-1) || "";
+            const pool = [...commands, ...Object.keys(links), ...Object.keys(files[state.cwd]?.entries || {})].sort();
+            const matches = pool.filter(item => item.startsWith(cursorToken));
+
+            if (matches.length === 1) {
+                const next = value.replace(new RegExp(`${cursorToken.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`), matches[0]);
+                setCurrentInput(next);
+            } else if (matches.length > 1) {
+                freezePrompt(value);
+                appendText(matches.join("  "));
+                newPrompt();
+                setCurrentInput(value);
+            }
+        }
+
+        function interrupt() {
+            const value = currentInput();
+            freezePrompt(`${value}^C`);
+            newPrompt();
+        }
+
+        terminal.addEventListener("click", () => {
+            focusInput();
         });
 
-        async function loadPosts() {
-            try {
-                const res = await fetch('./posts.json', { cache: 'no-store' });
-                if (!res.ok) throw new Error('HTTP ' + res.status);
-                const data = await res.json();
-                if (Array.isArray(data)) {
-                    SOURCES.blog.posts = data;
-                } else if (data && data.blog && Array.isArray(data.blog.posts)) {
-                    SOURCES.blog.label = data.blog.label || SOURCES.blog.label;
-                    SOURCES.blog.posts = data.blog.posts;
-                } else {
-                    throw new Error('JSON 格式不符合预期');
+        function handleKeydown(event) {
+            if (!state.input) return;
+            if (state.running) {
+                event.preventDefault();
+                return;
+            }
+
+            if (event.key === "Enter") {
+                event.preventDefault();
+                submit();
+                return;
+            }
+            if (event.key === "Tab") {
+                event.preventDefault();
+                complete();
+                return;
+            }
+            if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "l") {
+                event.preventDefault();
+                terminal.innerHTML = "";
+                newPrompt();
+                return;
+            }
+            if (event.ctrlKey && event.key.toLowerCase() === "c") {
+                event.preventDefault();
+                interrupt();
+                return;
+            }
+            if (event.key === "ArrowUp") {
+                event.preventDefault();
+                if (state.historyIndex > 0) {
+                    state.historyIndex -= 1;
+                    setCurrentInput(state.history[state.historyIndex] || "");
                 }
-            } catch (err) {
-                console.warn('[posts.json] 加载失败：', err);
-                SOURCES.blog.posts = [
-                    { id: 'hello-world', title: '占位：请提供 posts.json', url: 'https://example.com/hello-world' }
-                ];
+                return;
+            }
+            if (event.key === "ArrowDown") {
+                event.preventDefault();
+                if (state.historyIndex < state.history.length) {
+                    state.historyIndex += 1;
+                    setCurrentInput(state.history[state.historyIndex] || "");
+                }
             }
         }
 
+        readerClose.addEventListener("click", () => {
+            closeReader();
+            focusInput();
+        });
+
+        commandInput.addEventListener("keydown", handleKeydown);
+
         async function boot() {
-            $('#year').textContent = new Date().getFullYear();
-            setPrompt();
-            print('欢迎来到交互式终端。输入 <code>help</code> 查看命令。\n', '欢迎信息');
-            await loadPosts();
-            list();
-            cmdInput.focus();
+            appendText("Last login: Tue Jun 16 16:00:00 on tty1");
+            welcomeLines.forEach(line => appendLine(line));
+            newPrompt();
+            const params = new URLSearchParams(location.search);
+            const commandBatch = params.get("cmds");
+            const commandsToRun = commandBatch ? commandBatch.split(";").map(item => item.trim()).filter(Boolean) : [params.get("cmd")].filter(Boolean);
+            for (const command of commandsToRun) {
+                setCurrentInput(command);
+                await submit();
+            }
+            focusInput();
         }
 
-        window.addEventListener('load', boot);
+        window.addEventListener("load", () => {
+            boot();
+        });
     </script>
 </body>
 

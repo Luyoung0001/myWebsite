@@ -1,5 +1,10 @@
-update:
-	node posts-scraper.mjs
+.PHONY: start check install
 
-stall:
-	npm i node-fetch@3 cheerio
+start:
+	npm run start
+
+check:
+	npm run check
+
+install:
+	npm install
