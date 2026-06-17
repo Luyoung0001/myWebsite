@@ -629,7 +629,7 @@
         <section class="terminal-frame" aria-label="terminal window">
             <div class="window-bar" aria-hidden="true">
                 <span class="window-dot"></span>
-                <span class="window-title" id="terminal-title">guest@luliang:~</span>
+                <span class="window-title" id="terminal-title">guest@luliang.online:~</span>
             </div>
             <main id="terminal" role="application" aria-label="shell" tabindex="0"></main>
         </section>
@@ -786,7 +786,7 @@
 
         const state = {
             user: "guest",
-            host: "luliang",
+            host: "luliang.online",
             cwd: "/home/guest",
             history: JSON.parse(localStorage.getItem("history") || "[]").slice(-100),
             historyIndex: -1,
@@ -947,7 +947,7 @@
         function setLoginStatus() {
             const loginTime = formatBeijingTime();
             const prompt = `${state.user}@${state.host}:~$`;
-            topbarStatus.innerHTML = `<strong>${escapeHtml(prompt)}</strong> Last login: ${escapeHtml(loginTime)} <span class="topbar-login">欢迎登录</span>`;
+            topbarStatus.innerHTML = `<strong>${escapeHtml(prompt)}</strong> Last login: ${escapeHtml(loginTime)}`;
             terminalTitle.textContent = `${state.user}@${state.host}:~`;
             return loginTime;
         }
@@ -1754,7 +1754,7 @@
             },
             uname(args) {
                 appendText(args.includes("-a")
-                    ? "Linux luliang 6.6.0-static #1 SMP PREEMPT_DYNAMIC x86_64 GNU/Linux"
+                    ? "Linux luliang.online 6.6.0-static #1 SMP PREEMPT_DYNAMIC x86_64 GNU/Linux"
                     : "Linux");
             },
             id() {
@@ -1770,7 +1770,7 @@
                     "SHELL=/bin/bash",
                     "USER=guest",
                     "HOME=/home/guest",
-                    "HOSTNAME=luliang",
+                    "HOSTNAME=luliang.online",
                     "TERM=xterm-256color",
                     "PWD=" + state.cwd
                 ].join("\n"));
@@ -2485,7 +2485,6 @@
         async function boot() {
             const loginTime = setLoginStatus();
             appendText(`Last login: ${loginTime} on tty1`);
-            appendText("欢迎登录");
             welcomeLines.forEach(line => appendLine(line));
             newPrompt();
             const params = new URLSearchParams(location.search);
