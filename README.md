@@ -15,6 +15,7 @@ Low-key static shell page for `luliang.online`.
 - PicCut: https://piccut.luliang.online/ - 图片简单剪辑
 - Invest: https://invest.luliang.online/ - 黄金、比特币等行情多空判断
 - Skills: https://skills.luliang.online/
+- SmartChat: https://smartchat.site/ - 智能聊天站点
 - AI: https://luyoungai.asia/ - AI 中转站
 - XUPTArch: https://xuptarch.com/ - 硬件学习网站
 - RSimu: https://rsimu.xuptarch.com/
