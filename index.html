@@ -16,13 +16,59 @@
             --panel: #050505;
             --panel-2: #090909;
             --border: #1c1c1c;
+            --frame-border: #2a2a2a;
+            --window-border: #1b1b1b;
+            --window-top: #101010;
+            --window-bottom: #070707;
+            --topbar-bg: #050505;
+            --topbar-border: #1c1c1c;
+            --hover-border: #303030;
+            --hover-bg: #101010;
+            --terminal-open-bg: #020202;
+            --panel-solid: #030303;
+            --code-bg: #0c0c0c;
+            --code-border: #242424;
+            --pre-bg: #050505;
+            --pre-border: #202020;
+            --blockquote-border: #303030;
             --fg: #d7d7d7;
             --dim: #808080;
             --blue: #5fafff;
             --green: #87d787;
             --red: #ff5f5f;
             --yellow: #d7af5f;
+            --shadow: 0 24px 80px rgba(0, 0, 0, .38), inset 0 1px 0 rgba(255, 255, 255, .04);
             --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+
+        :root[data-theme="light"] {
+            color-scheme: light;
+            --bg: #eef1f5;
+            --panel: #f7f8fb;
+            --panel-2: #ffffff;
+            --border: #d7dce4;
+            --frame-border: #c7cfd9;
+            --window-border: #d5dce5;
+            --window-top: #f9fbff;
+            --window-bottom: #edf1f7;
+            --topbar-bg: rgba(248, 250, 253, .92);
+            --topbar-border: #d8dee7;
+            --hover-border: #bcc7d5;
+            --hover-bg: #edf3fb;
+            --terminal-open-bg: #f4f7fb;
+            --panel-solid: #ffffff;
+            --code-bg: #f4f7fb;
+            --code-border: #dce3ec;
+            --pre-bg: #f6f8fb;
+            --pre-border: #d7dee7;
+            --blockquote-border: #cfd8e4;
+            --fg: #1f2733;
+            --dim: #677386;
+            --blue: #2563eb;
+            --green: #1f7a36;
+            --red: #c93d3d;
+            --yellow: #a06a00;
+            --shadow: 0 24px 80px rgba(43, 55, 72, .12), inset 0 1px 0 rgba(255, 255, 255, .75);
         }
 
         * {
@@ -61,8 +107,8 @@
             justify-content: space-between;
             gap: 14px;
             padding: 0 12px;
-            border-bottom: 1px solid #1c1c1c;
-            background: #050505;
+            border-bottom: 1px solid var(--topbar-border);
+            background: var(--topbar-bg);
         }
 
         .topbar-status {
@@ -87,6 +133,14 @@
             flex-wrap: wrap;
         }
 
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            min-width: 0;
+        }
+
         .topbar-links a {
             min-height: 28px;
             display: inline-flex;
@@ -99,10 +153,49 @@
 
         .topbar-links a:hover,
         .topbar-links a:focus-visible {
-            border-color: #303030;
-            background: #101010;
+            border-color: var(--hover-border);
+            background: var(--hover-bg);
             color: var(--green);
             outline: none;
+        }
+
+        .theme-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            padding: 2px;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            background: var(--panel);
+            flex: 0 0 auto;
+        }
+
+        .theme-button {
+            min-width: 30px;
+            min-height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 0;
+            border-radius: 999px;
+            background: transparent;
+            color: var(--dim);
+            font: inherit;
+            cursor: pointer;
+            padding: 0 8px;
+            transition: background-color 180ms ease, color 180ms ease;
+        }
+
+        .theme-button:hover,
+        .theme-button:focus-visible {
+            background: var(--hover-bg);
+            color: var(--fg);
+            outline: none;
+        }
+
+        .theme-button[aria-pressed="true"] {
+            background: var(--hover-bg);
+            color: var(--green);
         }
 
         .workspace {
@@ -125,10 +218,10 @@
         .reader {
             min-width: 0;
             height: 100%;
-            border: 1px solid #2a2a2a;
+            border: 1px solid var(--frame-border);
             border-radius: 8px;
-            background: #030303;
-            box-shadow: 0 24px 80px rgba(0, 0, 0, .38), inset 0 1px 0 rgba(255, 255, 255, .04);
+            background: var(--panel-solid);
+            box-shadow: var(--shadow);
             overflow: hidden;
         }
 
@@ -154,8 +247,8 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            border-bottom: 1px solid #1b1b1b;
-            background: linear-gradient(180deg, #101010, #070707);
+            border-bottom: 1px solid var(--window-border);
+            background: linear-gradient(180deg, var(--window-top), var(--window-bottom));
             padding: 0 12px;
             color: var(--dim);
         }
@@ -193,7 +286,7 @@
         }
 
         .workspace.reader-open #terminal {
-            background: #020202;
+            background: var(--terminal-open-bg);
         }
 
         .line {
@@ -367,7 +460,7 @@
         .reader-link:focus-visible,
         .reader-close:hover,
         .reader-close:focus-visible {
-            border-color: #303030;
+            border-color: var(--hover-border);
             color: var(--green);
             outline: none;
         }
@@ -375,7 +468,7 @@
         .reader-body {
             min-height: 0;
             overflow: auto;
-            padding: 18px 20px 28px;
+            padding: 14px 16px 18px;
             color: #d0d0d0;
             white-space: normal;
             word-break: normal;
@@ -443,7 +536,7 @@
         .doc code {
             border: 1px solid #242424;
             border-radius: 3px;
-            background: #0c0c0c;
+            background: var(--code-bg);
             color: var(--green);
             padding: 1px 4px;
         }
@@ -451,9 +544,9 @@
         .doc pre {
             overflow: auto;
             max-width: 100%;
-            border: 1px solid #202020;
+            border: 1px solid var(--pre-border);
             border-radius: 5px;
-            background: #050505;
+            background: var(--pre-bg);
             padding: 12px;
             line-height: 1.55;
         }
@@ -467,7 +560,7 @@
 
         .doc blockquote {
             margin: 14px 0;
-            border-left: 3px solid #303030;
+            border-left: 3px solid var(--blockquote-border);
             padding-left: 12px;
             color: #a8a8a8;
         }
@@ -491,6 +584,136 @@
 
         .doc a code {
             text-decoration: underline;
+        }
+
+        .game-shell {
+            max-width: 920px;
+            margin: 0 auto;
+        }
+
+        .game-shell .doc-kicker {
+            margin-bottom: 6px;
+        }
+
+        .game-shell h1 {
+            margin-bottom: 8px;
+            font-size: clamp(1.2rem, 2vw, 1.7rem);
+        }
+
+        .game-subtitle {
+            margin: 0 0 8px;
+            color: var(--dim);
+        }
+
+        .game-controls {
+            margin: 0 0 10px;
+            color: #a6a6a6;
+            font-size: .92rem;
+        }
+
+        .game-controls code {
+            margin-right: 6px;
+        }
+
+        .game-stage {
+            border: 1px solid #202020;
+            border-radius: 6px;
+            background: #070707;
+            padding: 8px;
+        }
+
+        .game-hud {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin: 0 0 8px;
+            color: #bdbdbd;
+        }
+
+        .game-status {
+            color: var(--dim);
+            text-align: right;
+        }
+
+        .game-focus {
+            outline: none;
+        }
+
+        .game-focus:focus-visible .game-stage {
+            border-color: #355f35;
+            box-shadow: 0 0 0 1px rgba(135, 215, 135, .18);
+        }
+
+        .snake-grid {
+            display: grid;
+            grid-template-columns: repeat(14, minmax(0, 1fr));
+            gap: 3px;
+            aspect-ratio: 1;
+            max-width: min(100%, 380px);
+            margin: 0 auto;
+        }
+
+        .snake-cell {
+            border-radius: 3px;
+            background: #0d0d0d;
+            box-shadow: inset 0 0 0 1px #141414;
+        }
+
+        .snake-cell.snake-head {
+            background: #d7f7a2;
+            box-shadow: inset 0 0 0 1px #8eb65a;
+        }
+
+        .snake-cell.snake-body {
+            background: #87d787;
+            box-shadow: inset 0 0 0 1px #4f8f4f;
+        }
+
+        .snake-cell.snake-food {
+            background: #ff6f61;
+            box-shadow: inset 0 0 0 1px #c64239;
+        }
+
+        .tiles-2048 {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 8px;
+            max-width: min(100%, 320px);
+            margin: 0 auto;
+        }
+
+        .tile-2048 {
+            aspect-ratio: 1;
+            border-radius: 6px;
+            display: grid;
+            place-items: center;
+            font-size: clamp(1rem, 3vw, 1.4rem);
+            border: 1px solid #252525;
+            background: #111;
+            color: #8d8d8d;
+        }
+
+        .tile-2048[data-value="2"] { background: #1b2a17; color: #dff8cd; }
+        .tile-2048[data-value="4"] { background: #22371d; color: #e6f7da; }
+        .tile-2048[data-value="8"] { background: #4a3516; color: #ffe9c4; }
+        .tile-2048[data-value="16"] { background: #5f4317; color: #ffe3b0; }
+        .tile-2048[data-value="32"] { background: #6b3419; color: #ffd2bf; }
+        .tile-2048[data-value="64"] { background: #7f2319; color: #ffd0d0; }
+        .tile-2048[data-value="128"] { background: #26445e; color: #d8ecff; }
+        .tile-2048[data-value="256"] { background: #315679; color: #e1f0ff; }
+        .tile-2048[data-value="512"] { background: #4f3a7b; color: #efe4ff; }
+        .tile-2048[data-value="1024"] { background: #6a2f7b; color: #fde6ff; }
+        .tile-2048[data-value="2048"] { background: #8a7a16; color: #fff8cf; }
+
+        .runner-canvas {
+            width: min(100%, 620px);
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            border-radius: 6px;
+            border: 1px solid #1d1d1d;
+            background: linear-gradient(180deg, #151515, #060606);
         }
 
         .doc img {
@@ -562,6 +785,13 @@
                 width: 100%;
             }
 
+            .topbar-actions {
+                width: 100%;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 6px;
+            }
+
             .topbar-links a {
                 padding: 0 7px;
             }
@@ -606,7 +836,7 @@
             }
 
             .reader-body {
-                padding: 14px 12px 22px;
+                padding: 10px 10px 14px;
             }
 
             .repo-meta {
@@ -623,7 +853,14 @@
 <body>
     <header class="topbar" aria-label="site navigation">
         <div class="topbar-status" id="topbar-status"></div>
-        <nav class="topbar-links" id="topbar-links"></nav>
+        <div class="topbar-actions">
+            <nav class="topbar-links" id="topbar-links"></nav>
+            <div class="theme-toggle" id="theme-toggle" aria-label="theme switcher">
+                <button class="theme-button" id="theme-dark" type="button" data-theme-mode="dark" aria-label="dark theme" title="dark theme">☾</button>
+                <button class="theme-button" id="theme-light" type="button" data-theme-mode="light" aria-label="light theme" title="light theme">☀</button>
+                <button class="theme-button" id="theme-system" type="button" data-theme-mode="system" aria-label="follow browser theme" title="follow browser theme">◐</button>
+            </div>
+        </div>
     </header>
     <div class="workspace" id="workspace">
         <section class="terminal-frame" aria-label="terminal window">
@@ -664,6 +901,9 @@
         const topbarStatus = document.getElementById("topbar-status");
         const terminalTitle = document.getElementById("terminal-title");
         const ariaLive = document.getElementById("aria-live");
+        const themeButtons = Array.from(document.querySelectorAll(".theme-button"));
+        const themeMeta = document.querySelector('meta[name="theme-color"]');
+        const systemThemeQuery = window.matchMedia("(prefers-color-scheme: light)");
         const commandInput = document.createElement("input");
         const inputMirror = document.createElement("span");
         inputMirror.className = "input-mirror";
@@ -702,6 +942,8 @@
             "  repos / open repo <id>       列出并打开 GitHub 仓库",
             "  github search <q>            搜索 GitHub 仓库",
             "  google <q> / bing <q>        搜索网页并用编号打开结果",
+            "  games / snake / 2048 / mario 终端小游戏",
+            "  neofetch                    浏览器环境信息",
             "  ls links / cat links/<name>  查看站点入口",
             "",
             "站点:",
@@ -760,7 +1002,10 @@
             reposLoading: null,
             githubResults: [],
             webResults: [],
-            webProvider: localStorage.getItem("webSearchProvider") || "google"
+            webProvider: localStorage.getItem("webSearchProvider") || "google",
+            themeMode: localStorage.getItem("themeMode") || "dark",
+            gameCleanup: null,
+            gameKeyHandler: null
         };
 
         const files = {
@@ -802,7 +1047,8 @@
         const commands = [
             "help", "clear", "pwd", "ls", "cd", "cat", "echo", "printf", "date",
             "whoami", "hostname", "uname", "id", "history", "env", "posts", "repos", "gitrepo",
-            "github", "web", "google", "bing", "being", "next", "prev", "open", "close", "xdg-open", "exit"
+            "github", "web", "google", "bing", "being", "games", "snake", "2048", "mario", "neofetch",
+            "next", "prev", "open", "close", "xdg-open", "exit"
         ];
 
         const welcomeLines = [
@@ -846,6 +1092,30 @@
             }
         }
 
+        function resolvedTheme(mode = dataState.themeMode) {
+            if (mode === "system") {
+                return systemThemeQuery.matches ? "light" : "dark";
+            }
+            return mode === "light" ? "light" : "dark";
+        }
+
+        function syncThemeButtons() {
+            themeButtons.forEach(button => {
+                const active = button.dataset.themeMode === dataState.themeMode;
+                button.setAttribute("aria-pressed", active ? "true" : "false");
+            });
+        }
+
+        function applyTheme(mode = dataState.themeMode, persist = false) {
+            dataState.themeMode = ["dark", "light", "system"].includes(mode) ? mode : "dark";
+            const theme = resolvedTheme(dataState.themeMode);
+            document.documentElement.dataset.theme = theme;
+            document.documentElement.style.colorScheme = theme;
+            if (themeMeta) themeMeta.setAttribute("content", theme === "light" ? "#f7f8fb" : "#000000");
+            syncThemeButtons();
+            if (persist) localStorage.setItem("themeMode", dataState.themeMode);
+        }
+
         function formatBeijingTime(date = new Date()) {
             return new Intl.DateTimeFormat("en-US", {
                 timeZone: "Asia/Shanghai",
@@ -879,20 +1149,6 @@
             terminal.scrollTop = terminal.scrollHeight;
         }
 
-        function closeReader() {
-            state.readerOpen = false;
-            workspace.classList.remove("reader-open");
-            reader.setAttribute("aria-hidden", "true");
-            setTimeout(() => {
-                if (!state.readerOpen) {
-                    readerTitle.textContent = "reader";
-                    readerLink.href = "#";
-                    readerBody.innerHTML = `<div class="reader-loading">reader idle</div>`;
-                }
-            }, 430);
-            focusInput();
-        }
-
         function renderReader(title, url, html) {
             readerTitle.textContent = title;
             readerLink.href = url;
@@ -914,6 +1170,670 @@
                 </section>
             `;
             readerBody.scrollTop = 0;
+        }
+
+        function disposeGame() {
+            if (typeof dataState.gameCleanup === "function") {
+                dataState.gameCleanup();
+            }
+            dataState.gameCleanup = null;
+            dataState.gameKeyHandler = null;
+        }
+
+        function closeReader() {
+            disposeGame();
+            state.readerOpen = false;
+            workspace.classList.remove("reader-open");
+            reader.setAttribute("aria-hidden", "true");
+            setTimeout(() => {
+                if (!state.readerOpen) {
+                    readerTitle.textContent = "reader";
+                    readerLink.href = "#";
+                    readerBody.innerHTML = `<div class="reader-loading">reader idle</div>`;
+                }
+            }, 430);
+            focusInput();
+        }
+
+        function startGameShell(title, kicker, controls, sourceLabel = "local shell game") {
+            setReaderLoading(title, "#");
+            readerLink.removeAttribute("target");
+            readerLink.removeAttribute("rel");
+            renderReader(title, "#", `
+                <section class="doc game-shell">
+                    <p class="doc-kicker">${escapeHtml(kicker)}</p>
+                    <h1>${escapeHtml(title)}</h1>
+                    <p class="game-subtitle">${escapeHtml(sourceLabel)}</p>
+                    <p class="game-controls">${controls.map(text => `<code>${escapeHtml(text)}</code>`).join(" ")}</p>
+                    <div class="game-focus" id="game-focus" tabindex="0">
+                        <div class="game-stage">
+                            <div class="game-hud">
+                                <strong id="game-title">${escapeHtml(title)}</strong>
+                                <div class="game-status" id="game-status"></div>
+                            </div>
+                            <div id="game-root"></div>
+                        </div>
+                    </div>
+                </section>
+            `);
+            const focus = readerBody.querySelector("#game-focus");
+            requestAnimationFrame(() => focus?.focus({ preventScroll: true }));
+            return {
+                root: readerBody.querySelector("#game-root"),
+                status: readerBody.querySelector("#game-status"),
+                focus
+            };
+        }
+
+        function setGameHandler(handler, cleanup) {
+            disposeGame();
+            dataState.gameKeyHandler = handler;
+            dataState.gameCleanup = cleanup || null;
+        }
+
+        function renderGamesIndex() {
+            setReaderLoading("games", "#");
+            renderReader("games", "#", `
+                <section class="doc">
+                    <p class="doc-kicker">shell games</p>
+                    <h1>games</h1>
+                    <p>Use one of these commands in the terminal.</p>
+                    <ul>
+                        <li><code>snake</code> classic grid snake in the reader pane</li>
+                        <li><code>2048</code> slide tiles with arrow keys</li>
+                        <li><code>mario</code> side runner inspired by platform games</li>
+                    </ul>
+                </section>
+            `);
+        }
+
+        function formatByteGiB(value) {
+            if (!Number.isFinite(value) || value <= 0) return "unknown";
+            return `${value} GiB`;
+        }
+
+        function detectBrowserFromUA(ua = "") {
+            if (!ua) return "unknown";
+            if (/Edg\//.test(ua)) return "Microsoft Edge";
+            if (/OPR\//.test(ua)) return "Opera";
+            if (/Chrome\//.test(ua) && !/Edg\//.test(ua)) return "Google Chrome";
+            if (/Firefox\//.test(ua)) return "Firefox";
+            if (/Safari\//.test(ua) && /Version\//.test(ua) && !/Chrome\//.test(ua)) return "Safari";
+            return "unknown";
+        }
+
+        function detectEngine(ua = "") {
+            if (/AppleWebKit\//.test(ua) && /Chrome\//.test(ua)) return "Blink";
+            if (/AppleWebKit\//.test(ua) && /Safari\//.test(ua) && !/Chrome\//.test(ua)) return "WebKit";
+            if (/Gecko\//.test(ua) && /Firefox\//.test(ua)) return "Gecko";
+            return "unknown";
+        }
+
+        function detectOS(ua = "", platform = "") {
+            const source = `${ua} ${platform}`;
+            if (/Windows NT 10\.0/.test(source)) return "Windows 10/11";
+            if (/Windows NT 6\.3/.test(source)) return "Windows 8.1";
+            if (/Windows NT 6\.1/.test(source)) return "Windows 7";
+            if (/Android/.test(source)) return "Android";
+            if (/(iPhone|iPad|iPod)/.test(source)) return "iOS/iPadOS";
+            if (/Mac OS X|MacIntel|Macintosh/.test(source)) return "macOS";
+            if (/Linux|X11/.test(source)) return "Linux";
+            return platform || "unknown";
+        }
+
+        function detectGPU() {
+            try {
+                const canvas = document.createElement("canvas");
+                const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+                if (!gl) return "unavailable";
+                const extension = gl.getExtension("WEBGL_debug_renderer_info");
+                if (extension) {
+                    const renderer = gl.getParameter(extension.UNMASKED_RENDERER_WEBGL);
+                    if (renderer) return renderer;
+                }
+                return gl.getParameter(gl.RENDERER) || "available";
+            } catch {
+                return "unavailable";
+            }
+        }
+
+        function detectNetwork() {
+            const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            if (!connection) return "unavailable";
+            const parts = [];
+            if (connection.effectiveType) parts.push(connection.effectiveType);
+            if (Number.isFinite(connection.downlink)) parts.push(`${connection.downlink}Mb/s`);
+            if (typeof connection.rtt === "number") parts.push(`${connection.rtt}ms`);
+            return parts.join(" / ") || "available";
+        }
+
+        async function collectBrowserNeofetch() {
+            const userAgent = navigator.userAgent || "";
+            const platform = navigator.platform || "unknown";
+            const language = navigator.language || "unknown";
+            const languages = Array.isArray(navigator.languages) && navigator.languages.length
+                ? navigator.languages.join(", ")
+                : language;
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "unknown";
+            const screenInfo = `${window.screen.width}x${window.screen.height} @${window.devicePixelRatio || 1}x`;
+            const viewport = `${window.innerWidth}x${window.innerHeight}`;
+            const browser = detectBrowserFromUA(userAgent);
+            const engine = detectEngine(userAgent);
+            const os = detectOS(userAgent, platform);
+            const cores = navigator.hardwareConcurrency || "unknown";
+            const memory = formatByteGiB(navigator.deviceMemory);
+            const network = detectNetwork();
+            const gpu = detectGPU();
+
+            let brands = browser;
+            let architecture = "unknown";
+            let bitness = "unknown";
+            let mobile = /Mobile|Android|iPhone|iPad|iPod/i.test(userAgent) ? "yes" : "no";
+
+            if (navigator.userAgentData) {
+                try {
+                    const highEntropy = await navigator.userAgentData.getHighEntropyValues([
+                        "architecture",
+                        "bitness",
+                        "model",
+                        "platformVersion",
+                        "uaFullVersion"
+                    ]);
+                    architecture = highEntropy.architecture || architecture;
+                    bitness = highEntropy.bitness || bitness;
+                    mobile = navigator.userAgentData.mobile ? "yes" : "no";
+                    if (Array.isArray(navigator.userAgentData.brands) && navigator.userAgentData.brands.length) {
+                        brands = navigator.userAgentData.brands.map(item => `${item.brand} ${item.version}`).join(", ");
+                    }
+                    if (highEntropy.platformVersion && os !== "unknown") {
+                        brands = `${brands} / ${highEntropy.platformVersion}`;
+                    }
+                } catch {
+                    // Ignore UA-CH failures and keep legacy UA-derived values.
+                }
+            }
+
+            return {
+                browser,
+                brands,
+                engine,
+                os,
+                host: location.host || "luliang.online",
+                origin: location.origin || projectUrl,
+                platform,
+                language,
+                languages,
+                timezone,
+                screenInfo,
+                viewport,
+                cores,
+                memory,
+                network,
+                gpu,
+                architecture,
+                bitness,
+                mobile
+            };
+        }
+
+        async function renderNeofetch() {
+            appendText("neofetch: probing browser environment");
+            try {
+                const info = await collectBrowserNeofetch();
+                const lines = [
+                    `<span class="cmd-command">guest</span>@<span class="cmd-link">${escapeHtml(info.host)}</span>`,
+                    '<span class="dim">------------------------------------</span>',
+                    `<span class="cmd-command">Browser</span>: ${escapeHtml(info.browser)}`,
+                    `<span class="cmd-command">Brands</span>: ${escapeHtml(info.brands)}`,
+                    `<span class="cmd-command">Engine</span>: ${escapeHtml(info.engine)}`,
+                    `<span class="cmd-command">OS</span>: ${escapeHtml(info.os)}`,
+                    `<span class="cmd-command">Platform</span>: ${escapeHtml(info.platform)}`,
+                    `<span class="cmd-command">Arch</span>: ${escapeHtml(info.architecture)} / ${escapeHtml(info.bitness)}-bit`,
+                    `<span class="cmd-command">Mobile</span>: ${escapeHtml(info.mobile)}`,
+                    `<span class="cmd-command">Host</span>: ${escapeHtml(info.origin)}`,
+                    `<span class="cmd-command">Timezone</span>: ${escapeHtml(info.timezone)}`,
+                    `<span class="cmd-command">Locale</span>: ${escapeHtml(info.language)}`,
+                    `<span class="cmd-command">Languages</span>: ${escapeHtml(info.languages)}`,
+                    `<span class="cmd-command">Screen</span>: ${escapeHtml(info.screenInfo)}`,
+                    `<span class="cmd-command">Viewport</span>: ${escapeHtml(info.viewport)}`,
+                    `<span class="cmd-command">CPU cores</span>: ${escapeHtml(info.cores)}`,
+                    `<span class="cmd-command">Memory</span>: ${escapeHtml(info.memory)}`,
+                    `<span class="cmd-command">Network</span>: ${escapeHtml(info.network)}`,
+                    `<span class="cmd-command">GPU</span>: ${escapeHtml(info.gpu)}`,
+                    `<span class="cmd-command">Shell</span>: custom terminal`,
+                    `<span class="cmd-command">Reader</span>: posts / repos / web search`,
+                    `<span class="cmd-command">Games</span>: snake / 2048 / mario`,
+                    `<span class="dim">host pc name is unavailable in browser sandbox</span>`
+                ];
+                appendLine(lines.join("\n"));
+            } catch (error) {
+                appendLine(`<span class="error">neofetch: ${escapeHtml(error.message || String(error))}</span>`);
+            }
+        }
+
+        function launchSnake() {
+            const { root, status, focus } = startGameShell(
+                "snake",
+                "terminal game",
+                ["Arrows move", "R restart", "Esc close"],
+                "local shell game"
+            );
+            const size = 14;
+            const cells = [];
+            const grid = document.createElement("div");
+            grid.className = "snake-grid";
+            for (let index = 0; index < size * size; index += 1) {
+                const cell = document.createElement("div");
+                cell.className = "snake-cell";
+                cells.push(cell);
+                grid.appendChild(cell);
+            }
+            root.appendChild(grid);
+
+            let direction = { x: 1, y: 0 };
+            let pending = direction;
+            let snake = [{ x: 6, y: 7 }, { x: 5, y: 7 }, { x: 4, y: 7 }];
+            let food = { x: 10, y: 7 };
+            let score = 0;
+            let stopped = false;
+            let timer = null;
+
+            function snakeTickMs() {
+                return Math.max(80, 240 - (snake.length - 3) * 10);
+            }
+
+            function scheduleTick() {
+                if (timer) clearInterval(timer);
+                timer = setInterval(step, snakeTickMs());
+            }
+
+            function keyOf(point) {
+                return `${point.x},${point.y}`;
+            }
+
+            function spawnFood() {
+                const occupied = new Set(snake.map(keyOf));
+                const slots = [];
+                for (let y = 0; y < size; y += 1) {
+                    for (let x = 0; x < size; x += 1) {
+                        const id = `${x},${y}`;
+                        if (!occupied.has(id)) slots.push({ x, y });
+                    }
+                }
+                food = slots[Math.floor(Math.random() * slots.length)] || food;
+            }
+
+            function paint() {
+                cells.forEach(cell => {
+                    cell.className = "snake-cell";
+                });
+                snake.forEach((segment, index) => {
+                    const cell = cells[segment.y * size + segment.x];
+                    if (!cell) return;
+                    cell.classList.add(index === 0 ? "snake-head" : "snake-body");
+                });
+                const foodCell = cells[food.y * size + food.x];
+                if (foodCell) foodCell.classList.add("snake-food");
+                status.textContent = stopped ? `score ${score}  |  game over` : `score ${score}`;
+            }
+
+            function restart() {
+                direction = { x: 1, y: 0 };
+                pending = direction;
+                snake = [{ x: 6, y: 7 }, { x: 5, y: 7 }, { x: 4, y: 7 }];
+                food = { x: 10, y: 7 };
+                score = 0;
+                stopped = false;
+                scheduleTick();
+                paint();
+            }
+
+            function step() {
+                if (stopped) return;
+                direction = pending;
+                const head = snake[0];
+                const next = { x: head.x + direction.x, y: head.y + direction.y };
+                if (next.x < 0 || next.y < 0 || next.x >= size || next.y >= size || snake.some(segment => segment.x === next.x && segment.y === next.y)) {
+                    stopped = true;
+                    paint();
+                    return;
+                }
+                snake.unshift(next);
+                if (next.x === food.x && next.y === food.y) {
+                    score += 1;
+                    spawnFood();
+                    scheduleTick();
+                } else {
+                    snake.pop();
+                }
+                paint();
+            }
+
+            restart();
+            setGameHandler(event => {
+                const map = {
+                    ArrowUp: { x: 0, y: -1 },
+                    ArrowDown: { x: 0, y: 1 },
+                    ArrowLeft: { x: -1, y: 0 },
+                    ArrowRight: { x: 1, y: 0 }
+                };
+                if (event.key in map) {
+                    const next = map[event.key];
+                    if (next.x + direction.x !== 0 || next.y + direction.y !== 0) {
+                        pending = next;
+                    }
+                    event.preventDefault();
+                    return true;
+                }
+                if (event.key.toLowerCase() === "r") {
+                    restart();
+                    event.preventDefault();
+                    return true;
+                }
+                if (event.key === "Escape") {
+                    closeReader();
+                    event.preventDefault();
+                    return true;
+                }
+                return false;
+            }, () => {
+                if (timer) clearInterval(timer);
+            });
+            focus?.focus({ preventScroll: true });
+        }
+
+        function launch2048() {
+            const { root, status, focus } = startGameShell(
+                "2048",
+                "terminal game",
+                ["Arrows move", "R restart", "Esc close"],
+                "local shell game"
+            );
+            const board = document.createElement("div");
+            board.className = "tiles-2048";
+            const tiles = [];
+            for (let i = 0; i < 16; i += 1) {
+                const tile = document.createElement("div");
+                tile.className = "tile-2048";
+                tiles.push(tile);
+                board.appendChild(tile);
+            }
+            root.appendChild(board);
+
+            let grid = Array.from({ length: 4 }, () => Array(4).fill(0));
+            let score = 0;
+            let over = false;
+
+            function emptyCells() {
+                const cells = [];
+                for (let y = 0; y < 4; y += 1) {
+                    for (let x = 0; x < 4; x += 1) {
+                        if (!grid[y][x]) cells.push({ x, y });
+                    }
+                }
+                return cells;
+            }
+
+            function addRandomTile() {
+                const slots = emptyCells();
+                if (!slots.length) return;
+                const { x, y } = slots[Math.floor(Math.random() * slots.length)];
+                grid[y][x] = Math.random() < 0.9 ? 2 : 4;
+            }
+
+            function draw() {
+                for (let y = 0; y < 4; y += 1) {
+                    for (let x = 0; x < 4; x += 1) {
+                        const value = grid[y][x];
+                        const tile = tiles[y * 4 + x];
+                        tile.dataset.value = String(value || 0);
+                        tile.textContent = value ? String(value) : "";
+                    }
+                }
+                status.textContent = over ? `score ${score}  |  no moves` : `score ${score}`;
+            }
+
+            function compress(line) {
+                const values = line.filter(Boolean);
+                const merged = [];
+                let gained = 0;
+                for (let i = 0; i < values.length; i += 1) {
+                    if (values[i] && values[i] === values[i + 1]) {
+                        const next = values[i] * 2;
+                        merged.push(next);
+                        gained += next;
+                        i += 1;
+                    } else {
+                        merged.push(values[i]);
+                    }
+                }
+                while (merged.length < 4) merged.push(0);
+                return { line: merged, gained };
+            }
+
+            function move(direction) {
+                const snapshot = JSON.stringify(grid);
+                let gained = 0;
+                if (direction === "left" || direction === "right") {
+                    grid = grid.map(row => {
+                        const source = direction === "right" ? [...row].reverse() : [...row];
+                        const result = compress(source);
+                        gained += result.gained;
+                        return direction === "right" ? result.line.reverse() : result.line;
+                    });
+                } else {
+                    const next = Array.from({ length: 4 }, () => Array(4).fill(0));
+                    for (let x = 0; x < 4; x += 1) {
+                        const column = grid.map(row => row[x]);
+                        const source = direction === "down" ? [...column].reverse() : column;
+                        const result = compress(source);
+                        gained += result.gained;
+                        const finalLine = direction === "down" ? result.line.reverse() : result.line;
+                        finalLine.forEach((value, y) => {
+                            next[y][x] = value;
+                        });
+                    }
+                    grid = next;
+                }
+                if (JSON.stringify(grid) !== snapshot) {
+                    score += gained;
+                    addRandomTile();
+                    over = !canMove();
+                    draw();
+                }
+            }
+
+            function canMove() {
+                if (emptyCells().length) return true;
+                for (let y = 0; y < 4; y += 1) {
+                    for (let x = 0; x < 4; x += 1) {
+                        const value = grid[y][x];
+                        if (grid[y]?.[x + 1] === value || grid[y + 1]?.[x] === value) return true;
+                    }
+                }
+                return false;
+            }
+
+            function restart() {
+                grid = Array.from({ length: 4 }, () => Array(4).fill(0));
+                score = 0;
+                over = false;
+                addRandomTile();
+                addRandomTile();
+                draw();
+            }
+
+            restart();
+            setGameHandler(event => {
+                const mapping = {
+                    ArrowLeft: "left",
+                    ArrowRight: "right",
+                    ArrowUp: "up",
+                    ArrowDown: "down"
+                };
+                if (mapping[event.key]) {
+                    move(mapping[event.key]);
+                    event.preventDefault();
+                    return true;
+                }
+                if (event.key.toLowerCase() === "r") {
+                    restart();
+                    event.preventDefault();
+                    return true;
+                }
+                if (event.key === "Escape") {
+                    closeReader();
+                    event.preventDefault();
+                    return true;
+                }
+                return false;
+            });
+            focus?.focus({ preventScroll: true });
+        }
+
+        function launchMario() {
+            const { root, status, focus } = startGameShell(
+                "mario",
+                "terminal game",
+                ["Space jump", "R restart", "Esc close"],
+                "runner tribute"
+            );
+            const canvas = document.createElement("canvas");
+            canvas.className = "runner-canvas";
+            canvas.width = 760;
+            canvas.height = 280;
+            root.appendChild(canvas);
+            const context = canvas.getContext("2d");
+
+            let raf = 0;
+            let last = 0;
+            let score = 0;
+            let alive = true;
+            let obstacleTick = 0;
+            let obstacles = [];
+            const player = { x: 90, y: 0, width: 24, height: 26, velocity: 0 };
+            const gravity = 980;
+            const jumpVelocity = -360;
+            const ground = 210;
+
+            function restart() {
+                score = 0;
+                alive = true;
+                obstacleTick = 0;
+                obstacles = [];
+                player.y = 0;
+                player.velocity = 0;
+                last = 0;
+                cancelAnimationFrame(raf);
+                raf = requestAnimationFrame(loop);
+            }
+
+            function jump() {
+                if (!alive) return;
+                if (player.y >= ground - player.height - 1) {
+                    player.velocity = jumpVelocity;
+                }
+            }
+
+            function update(delta) {
+                if (!alive) return;
+                obstacleTick += delta;
+                if (obstacleTick > 1.3) {
+                    obstacleTick = 0;
+                    obstacles.push({
+                        x: canvas.width + 30,
+                        width: 18 + Math.random() * 20,
+                        height: 22 + Math.random() * 22
+                    });
+                }
+                player.velocity += gravity * delta;
+                player.y += player.velocity * delta;
+                const floor = ground - player.height;
+                if (player.y > floor) {
+                    player.y = floor;
+                    player.velocity = 0;
+                }
+                obstacles = obstacles
+                    .map(item => ({ ...item, x: item.x - 260 * delta }))
+                    .filter(item => item.x + item.width > -20);
+                score += delta * 10;
+                const hit = obstacles.some(item => (
+                    player.x < item.x + item.width &&
+                    player.x + player.width > item.x &&
+                    player.y + player.height > ground - item.height
+                ));
+                if (hit) alive = false;
+            }
+
+            function draw() {
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                context.fillStyle = "#0a0a0a";
+                context.fillRect(0, 0, canvas.width, canvas.height);
+
+                context.strokeStyle = "#202020";
+                context.lineWidth = 2;
+                context.beginPath();
+                context.moveTo(0, ground);
+                context.lineTo(canvas.width, ground);
+                context.stroke();
+
+                context.fillStyle = "#87d787";
+                context.fillRect(player.x, player.y, player.width, player.height);
+                context.fillStyle = "#d7f7a2";
+                context.fillRect(player.x + 16, player.y + 6, 5, 5);
+
+                context.fillStyle = "#ff6f61";
+                obstacles.forEach(item => {
+                    context.fillRect(item.x, ground - item.height, item.width, item.height);
+                });
+
+                context.fillStyle = "#b8b8b8";
+                context.font = "16px monospace";
+                context.fillText(`distance ${Math.floor(score)}m`, 16, 28);
+                status.textContent = alive ? `distance ${Math.floor(score)}m` : `distance ${Math.floor(score)}m  |  crashed`;
+
+                if (!alive) {
+                    context.fillStyle = "rgba(0, 0, 0, 0.55)";
+                    context.fillRect(0, 0, canvas.width, canvas.height);
+                    context.fillStyle = "#f0f0f0";
+                    context.font = "bold 24px monospace";
+                    context.fillText("Game Over", canvas.width / 2 - 70, 120);
+                    context.font = "14px monospace";
+                    context.fillText("press R to restart or Esc to exit", canvas.width / 2 - 130, 150);
+                }
+            }
+
+            function loop(timestamp) {
+                if (!last) last = timestamp;
+                const delta = Math.min((timestamp - last) / 1000, 0.03);
+                last = timestamp;
+                update(delta);
+                draw();
+                raf = requestAnimationFrame(loop);
+            }
+
+            restart();
+            setGameHandler(event => {
+                if (event.code === "Space" || event.key === "ArrowUp") {
+                    jump();
+                    event.preventDefault();
+                    return true;
+                }
+                if (event.key.toLowerCase() === "r") {
+                    restart();
+                    event.preventDefault();
+                    return true;
+                }
+                if (event.key === "Escape") {
+                    closeReader();
+                    event.preventDefault();
+                    return true;
+                }
+                return false;
+            }, () => {
+                cancelAnimationFrame(raf);
+            });
+            focus?.focus({ preventScroll: true });
         }
 
         function newPrompt() {
@@ -1676,6 +2596,11 @@
                     ["web open <id>", "open a web search result"],
                     ["google <q>", "search Google"],
                     ["bing <q>", "search Bing"],
+                    ["games", "list shell games"],
+                    ["snake", "play snake in the reader pane"],
+                    ["2048", "play 2048 in the reader pane"],
+                    ["mario", "play a side runner in the reader pane"],
+                    ["neofetch", "render browser environment info"],
                     ["next / prev", "page the last listing"],
                     ["open post <id>", "render a blog post in the right pane"],
                     ["open repo <id>", "render a github repo in the right pane"],
@@ -1813,6 +2738,25 @@
             },
             async being(args) {
                 await webCommand(["search-with", "bing", ...args]);
+            },
+            games() {
+                renderGamesIndex();
+                appendText("games: snake  2048  mario");
+            },
+            snake() {
+                launchSnake();
+                appendText("game: snake");
+            },
+            "2048"() {
+                launch2048();
+                appendText("game: 2048");
+            },
+            mario() {
+                launchMario();
+                appendText("game: mario");
+            },
+            async neofetch() {
+                await renderNeofetch();
             },
             next() {
                 if (renderPage(1)) state.pagerArmed = true;
@@ -2427,6 +3371,10 @@
         });
 
         function handleKeydown(event) {
+            if (typeof dataState.gameKeyHandler === "function") {
+                const handled = dataState.gameKeyHandler(event);
+                if (handled) return;
+            }
             if (!state.input) return;
             if (state.running) {
                 event.preventDefault();
@@ -2480,10 +3428,33 @@
             focusInput();
         });
 
+        themeButtons.forEach(button => {
+            button.addEventListener("click", () => {
+                applyTheme(button.dataset.themeMode, true);
+                focusInput();
+            });
+        });
+
+        if (typeof systemThemeQuery.addEventListener === "function") {
+            systemThemeQuery.addEventListener("change", () => {
+                if (dataState.themeMode === "system") applyTheme("system", false);
+            });
+        } else if (typeof systemThemeQuery.addListener === "function") {
+            systemThemeQuery.addListener(() => {
+                if (dataState.themeMode === "system") applyTheme("system", false);
+            });
+        }
+
         commandInput.addEventListener("input", updateInputMirror);
         commandInput.addEventListener("keydown", handleKeydown);
+        window.addEventListener("keydown", event => {
+            if (!dataState.gameKeyHandler) return;
+            if (event.target === commandInput) return;
+            handleKeydown(event);
+        });
 
         async function boot() {
+            applyTheme(dataState.themeMode, false);
             const loginTime = setLoginStatus();
             appendText(`Last login: ${loginTime} on tty1`);
             welcomeLines.forEach(line => appendLine(line));

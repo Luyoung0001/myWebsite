@@ -4,6 +4,8 @@ Low-key static shell page for `luliang.online`.
 
 目标: 简洁操作。用接近真实 shell 的方式浏览文章、项目、搜索结果和站点入口。
 
+顶部支持三态主题切换: `dark` / `light` / `follow browser`.
+
 ## Links
 
 - Home: https://luliang.online/
@@ -35,6 +37,11 @@ Inside the shell:
 ```bash
 cat README
 ls links
+games
+snake
+2048
+mario
+neofetch
 posts
 repos
 github search riscv
@@ -44,3 +51,5 @@ open repo 0
 web open 0
 close
 ```
+
+`neofetch` now reads browser-side environment data when available, including browser, engine, platform, timezone, screen, viewport, CPU cores, memory hint, network hint, and WebGL GPU renderer. It cannot read the real host computer name from a normal browser page.

@@ -2,6 +2,10 @@ import fs from 'node:fs/promises';
 
 const requiredHtmlMarkers = [
   'class="topbar-links"',
+  'class="theme-toggle"',
+  'data-theme-mode="dark"',
+  'data-theme-mode="light"',
+  'data-theme-mode="system"',
   'GitHub',
   'Blog',
   'Thoughts',
@@ -37,6 +41,7 @@ const requiredHtmlMarkers = [
   'type <span class="kbd">help</span> and press <span class="kbd">Enter</span>',
   'Last login:',
   'function formatBeijingTime',
+  'function applyTheme',
   'function highlightCommandLine',
   'function appendHelp',
   'cmd-command',
@@ -49,6 +54,11 @@ const requiredHtmlMarkers = [
   'web engine [name]',
   'google <q>',
   'bing <q>',
+  'games',
+  'snake',
+  '2048',
+  'mario',
+  'neofetch',
   'function loadAllPosts',
   'function loadAllRepos',
   'function searchGitHubRepos',
@@ -70,6 +80,9 @@ const requiredHtmlMarkers = [
   'const links',
   'const siteLinks',
   'const shellReadme',
+  'function launchSnake',
+  'function launch2048',
+  'function launchMario',
   'const commands'
 ];
 
