@@ -290,8 +290,20 @@
         }
 
         .line {
+            display: block;
             min-height: 1.38em;
             user-select: text;
+        }
+
+        .prompt-line {
+            display: flex;
+            align-items: baseline;
+            min-width: 0;
+        }
+
+        .prompt-prefix {
+            flex: 0 0 auto;
+            white-space: pre;
         }
 
         .prompt {
@@ -351,13 +363,14 @@
 
         .input-slot {
             position: relative;
-            display: inline-block;
-            min-width: 2ch;
-            width: min(74ch, calc(100% - 22ch));
+            display: block;
+            flex: 1 1 0;
+            min-width: 0;
             vertical-align: baseline;
         }
 
         .input-mirror {
+            overflow-wrap: anywhere;
             display: block;
             min-height: 1.38em;
             white-space: pre-wrap;
@@ -1876,7 +1889,8 @@
         }
 
         function newPrompt() {
-            const line = appendLine(`${promptHtml()}<span class="input-slot"></span>`);
+            const line = appendLine(`<span class="prompt-prefix">${promptHtml()}</span><span class="input-slot"></span>`);
+            line.classList.add("prompt-line");
             const slot = line.querySelector(".input-slot");
             state.promptLine = line;
             state.input = commandInput;
@@ -1888,6 +1902,7 @@
         }
 
         function freezePrompt(command) {
+            state.promptLine.classList.remove("prompt-line");
             state.promptLine.innerHTML = `${promptHtml()}${highlightCommandLine(command)}`;
             state.input = null;
             state.promptLine = null;
