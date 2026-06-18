@@ -34,6 +34,8 @@ const requiredHtmlMarkers = [
   'https://minicompi.xuptarch.com/',
   'id="workspace"',
   'class="terminal-frame"',
+  'static-caret',
+  'terminal.innerHTML = ""',
   'class="window-bar"',
   'id="terminal"',
   'guest@luliang.online',

@@ -9,6 +9,18 @@
     <meta name="theme-color" content="#000000" />
     <link rel="icon"
         href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='black'/%3E%3Cpath d='M14 38l8-8-8-8' fill='none' stroke='%23d7d7d7' stroke-width='5' stroke-linecap='square' stroke-linejoin='round'/%3E%3Cpath d='M30 44h20' stroke='%23d7d7d7' stroke-width='5' stroke-linecap='square'/%3E%3C/svg%3E" />
+    <script>
+        (() => {
+            try {
+                const mode = localStorage.getItem("themeMode") || "dark";
+                const isLight = mode === "light" || (mode === "system" && matchMedia("(prefers-color-scheme: light)").matches);
+                document.documentElement.dataset.theme = isLight ? "light" : "dark";
+                document.documentElement.style.colorScheme = isLight ? "light" : "dark";
+            } catch {
+                document.documentElement.dataset.theme = "dark";
+            }
+        })();
+    </script>
     <style>
         :root {
             color-scheme: dark;
@@ -464,6 +476,20 @@
 
         .terminal-input::placeholder {
             color: #505050;
+        }
+
+        .static-caret {
+            display: inline-block;
+            width: .62ch;
+            height: 1.12em;
+            margin-left: 1px;
+            background: var(--fg);
+            vertical-align: -.18em;
+            animation: caret-blink 1.05s steps(1, end) infinite;
+        }
+
+        @keyframes caret-blink {
+            50% { opacity: 0; }
         }
 
         .hint {
@@ -964,7 +990,15 @@
     <header class="topbar" aria-label="site navigation">
         <div class="topbar-status" id="topbar-status"></div>
         <div class="topbar-actions">
-            <nav class="topbar-links" id="topbar-links"></nav>
+            <nav class="topbar-links" id="topbar-links">
+                <a class="topbar-link" href="https://luliang.online/" target="_blank" rel="noopener noreferrer" title="本项目网址">Home</a>
+                <a class="topbar-link" href="https://github.com/Luyoung0001" target="_blank" rel="noopener noreferrer" title="代码与项目">GitHub</a>
+                <span class="menu-group"><button class="menu-trigger" type="button" aria-haspopup="true">Blog</button><span class="menu-panel"><a href="https://blogs.luliang.online/" target="_blank" rel="noopener noreferrer" title="博客文章">Blog</a><a href="https://thoughts.luliang.online/" target="_blank" rel="noopener noreferrer" title="随笔与想法">Thoughts</a></span></span>
+                <span class="menu-group"><button class="menu-trigger" type="button" aria-haspopup="true">Tools</button><span class="menu-panel"><a href="https://piccut.luliang.online/" target="_blank" rel="noopener noreferrer" title="图片简单剪辑">PicCut</a><a href="https://smartchat.site/" target="_blank" rel="noopener noreferrer" title="智能聊天站点">SmartChat</a><a href="https://luyoungai.asia/" target="_blank" rel="noopener noreferrer" title="AI 中转站">AI</a><a href="https://invest.luliang.online/" target="_blank" rel="noopener noreferrer" title="黄金、比特币等行情多空判断">Invest</a><a href="https://skills.luliang.online/" target="_blank" rel="noopener noreferrer" title="技能与工具">Skills</a></span></span>
+                <span class="menu-group"><button class="menu-trigger" type="button" aria-haspopup="true">Education</button><span class="menu-panel"><a href="https://xuptarch.com/" target="_blank" rel="noopener noreferrer" title="硬件学习网站">XUPTArch</a><a href="https://rsimu.xuptarch.com/" target="_blank" rel="noopener noreferrer" title="RISC-V 模拟器">RSimu</a><a href="https://minillm.xuptarch.com/" target="_blank" rel="noopener noreferrer" title="简单大语言模型">MiniLLM</a><a href="https://minicompi.xuptarch.com/" target="_blank" rel="noopener noreferrer" title="简单编译器">MiniCompi</a></span></span>
+                <a class="topbar-link" href="https://space.bilibili.com/19872805" target="_blank" rel="noopener noreferrer" title="视频频道">Bilibili</a>
+                <a class="topbar-link" href="mailto:791975457@qq.com" target="_blank" rel="noopener noreferrer" title="联系邮箱">Email</a>
+            </nav>
             <div class="theme-toggle" id="theme-toggle" aria-label="theme switcher">
                 <button class="theme-button" id="theme-dark" type="button" data-theme-mode="dark" aria-label="dark theme" title="dark theme">☾</button>
                 <button class="theme-button" id="theme-light" type="button" data-theme-mode="light" aria-label="light theme" title="light theme">☀</button>
@@ -978,7 +1012,11 @@
                 <span class="window-dot"></span>
                 <span class="window-title" id="terminal-title">guest@luliang.online:~</span>
             </div>
-            <main id="terminal" role="application" aria-label="shell" tabindex="0"></main>
+            <main id="terminal" role="application" aria-label="shell" tabindex="0">
+                    <div class="line static-shell-line">Last login: loading on tty1</div>
+                    <div class="line static-shell-line"><span class="hint">type <span class="kbd">help</span> and press <span class="kbd">Enter</span>. try <span class="kbd">posts</span>, <span class="kbd">repos</span>, <span class="kbd">open post 0</span>.</span></div>
+                    <div class="line prompt-line static-shell-line"><span class="prompt-prefix"><span class="prompt">guest@luliang.online</span>:<span class="path">~</span>$ </span><span class="static-caret" aria-hidden="true"></span></div>
+                </main>
         </section>
         <aside class="reader" id="reader" aria-label="content reader" aria-hidden="true">
             <div class="reader-inner">
@@ -3639,6 +3677,7 @@
         });
 
         async function boot() {
+            terminal.innerHTML = "";
             applyTheme(dataState.themeMode, false);
             const loginTime = setLoginStatus();
             appendText(`Last login: ${loginTime} on tty1`);

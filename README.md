@@ -6,6 +6,7 @@ Low-key static shell page for `luliang.online`.
 
 顶部支持三态主题切换: `dark` / `light` / `follow browser`.
 顶部导航按 `Blog` / `Tools` / `Education` 分组，下拉展示站点入口。
+首屏 HTML 直接包含静态顶栏、终端提示和 CSS 光标；完整命令系统随后由 JavaScript 接管。
 
 ## Links
 
