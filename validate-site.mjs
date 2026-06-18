@@ -30,6 +30,8 @@ const requiredHtmlMarkers = [
   'https://luyoungai.asia/',
   'https://xuptarch.com/',
   'https://rsimu.xuptarch.com/',
+  'https://minillm.xuptarch.com/',
+  'https://minicompi.xuptarch.com/',
   'id="workspace"',
   'class="terminal-frame"',
   'class="window-bar"',

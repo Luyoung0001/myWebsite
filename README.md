@@ -22,6 +22,8 @@ Low-key static shell page for `luliang.online`.
 - AI: https://luyoungai.asia/ - AI 中转站
 - XUPTArch: https://xuptarch.com/ - 硬件学习网站
 - RSimu: https://rsimu.xuptarch.com/
+- MiniLLM: https://minillm.xuptarch.com/ - 简单大语言模型
+- MiniCompi: https://minicompi.xuptarch.com/ - 简单编译器
 
 ## Commands
 
