@@ -18,6 +18,7 @@ const requiredHtmlMarkers = [
   'XUPTArch',
   'RSimu',
   'https://luliang.online/',
+  'https://blogs.luliang.online/',
   'https://thoughts.luliang.online/',
   'https://piccut.luliang.online/',
   'https://invest.luliang.online/',

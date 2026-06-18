@@ -10,7 +10,7 @@ Low-key static shell page for `luliang.online`.
 
 - Home: https://luliang.online/
 - GitHub: https://github.com/Luyoung0001
-- Blog: https://blog.luliang.website/
+- Blog: https://blogs.luliang.online/
 - Thoughts: https://thoughts.luliang.online/
 - Bilibili: https://space.bilibili.com/19872805
 - Email: mailto:791975457@qq.com
