@@ -46,6 +46,7 @@ snake
 mario
 neofetch
 jslinux
+author
 posts
 repos
 github search riscv
@@ -57,3 +58,5 @@ close
 ```
 
 `neofetch` now reads browser-side environment data when available, including browser, engine, platform, timezone, screen, viewport, CPU cores, memory hint, network hint, and WebGL GPU renderer. It cannot read the real host computer name from a normal browser page.
+
+`author` opens a right-pane introduction with current focus areas and contact information.

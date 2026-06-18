@@ -1055,6 +1055,7 @@
             "  github search <q>            搜索 GitHub 仓库",
             "  google <q> / bing <q>        搜索网页并用编号打开结果",
             "  jslinux                     打开 x86_64 Linux Console",
+            "  author                      查看作者介绍",
             "  games / snake / 2048 / mario 终端小游戏",
             "  neofetch                    浏览器环境信息",
             "  ls links / cat links/<name>  查看站点入口",
@@ -1094,6 +1095,14 @@
         const GITHUB_SEARCH_API = "https://api.github.com/search/repositories";
         const JINA_READER_BASE = "https://r.jina.ai/http://";
         const JSLINUX_X86_URL = "https://bellard.org/jslinux/vm.html?cpu=x86_64&mem=256&url=alpine-x86_64.cfg";
+        const AUTHOR_PROFILE = [
+            "🎓 I work on operating systems, computer architecture, LLVM backends, and large language models.",
+            "🔭 My current focus is on LLM-related projects and the so-called RISC-VI plan.",
+            "🌱 I am currently learning more about large language models and exploring how agents, compilers, and computer systems can work together.",
+            "👯 I am open to collaboration on low-level software, hardware, compiler infrastructure, and AI-assisted systems.",
+            "💬 Ask me about agents, computer architecture, LLMs, compilers, and computer systems.",
+            "📫 How to reach me: luyoung0001@gmail.com."
+        ];
 
         const blogPosts = [
             {
@@ -1182,7 +1191,7 @@
         const commands = [
             "help", "clear", "pwd", "ls", "cd", "cat", "echo", "printf", "date",
             "whoami", "hostname", "uname", "id", "history", "env", "posts", "repos", "gitrepo",
-            "github", "web", "google", "bing", "being", "jslinux", "games", "snake", "2048", "mario", "neofetch",
+            "github", "web", "google", "bing", "being", "jslinux", "author", "games", "snake", "2048", "mario", "neofetch",
             "next", "prev", "open", "close", "xdg-open", "exit"
         ];
 
@@ -1396,6 +1405,17 @@
                         loading="eager"
                         referrerpolicy="no-referrer"
                         allowfullscreen></iframe>
+                </section>
+            `);
+        }
+
+        function renderAuthor() {
+            setReaderLoading("author", "mailto:luyoung0001@gmail.com");
+            renderReader("author", "mailto:luyoung0001@gmail.com", `
+                <section class="doc">
+                    <p class="doc-kicker">author</p>
+                    <h1>Luyoung</h1>
+                    ${AUTHOR_PROFILE.map(line => `<p>${escapeHtml(line)}</p>`).join("")}
                 </section>
             `);
         }
@@ -2752,6 +2772,7 @@
                     ["google <q>", "search Google"],
                     ["bing <q>", "search Bing"],
                     ["jslinux", "open the JSLinux x86_64 console"],
+                    ["author", "show author profile"],
                     ["games", "list shell games"],
                     ["snake", "play snake in the reader pane"],
                     ["2048", "play 2048 in the reader pane"],
@@ -2898,6 +2919,10 @@
             jslinux() {
                 renderJSLinux();
                 appendText("opened: jslinux x86_64 console");
+            },
+            author() {
+                renderAuthor();
+                appendText("opened: author");
             },
             games() {
                 renderGamesIndex();
