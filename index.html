@@ -141,7 +141,9 @@
             min-width: 0;
         }
 
-        .topbar-links a {
+        .topbar-link,
+        .menu-trigger,
+        .menu-panel a {
             min-height: 28px;
             display: inline-flex;
             align-items: center;
@@ -149,14 +151,72 @@
             border-radius: 3px;
             padding: 0 8px;
             color: var(--fg);
+            font: inherit;
         }
 
-        .topbar-links a:hover,
-        .topbar-links a:focus-visible {
+        .topbar-link:hover,
+        .topbar-link:focus-visible,
+        .menu-group:hover .menu-trigger,
+        .menu-group:focus-within .menu-trigger,
+        .menu-panel a:hover,
+        .menu-panel a:focus-visible {
             border-color: var(--hover-border);
             background: var(--hover-bg);
             color: var(--green);
             outline: none;
+        }
+
+        .menu-group {
+            position: relative;
+            display: inline-flex;
+        }
+
+        .menu-trigger {
+            background: transparent;
+            cursor: default;
+        }
+
+        .menu-trigger::after {
+            content: "";
+            width: 0;
+            height: 0;
+            margin-left: 6px;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-top: 5px solid currentColor;
+            opacity: .7;
+        }
+
+        .menu-panel {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            z-index: 20;
+            min-width: 180px;
+            display: grid;
+            gap: 2px;
+            padding: 10px 6px 6px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--panel-solid);
+            box-shadow: var(--shadow);
+            opacity: 0;
+            transform: translateY(-2px);
+            pointer-events: none;
+            transition: opacity 160ms ease, transform 160ms ease;
+        }
+
+        .menu-group:hover .menu-panel,
+        .menu-group:focus-within .menu-panel {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .menu-panel a {
+            justify-content: space-between;
+            width: 100%;
+            white-space: nowrap;
         }
 
         .theme-toggle {
@@ -824,8 +884,26 @@
                 gap: 6px;
             }
 
-            .topbar-links a {
+            .topbar-link,
+            .menu-trigger,
+            .menu-panel a {
                 padding: 0 7px;
+            }
+
+            .menu-group {
+                display: grid;
+            }
+
+            .menu-panel {
+                position: static;
+                min-width: 0;
+                padding: 2px 0 0 1ch;
+                border: 0;
+                background: transparent;
+                box-shadow: none;
+                opacity: 1;
+                transform: none;
+                pointer-events: auto;
             }
 
             .workspace,
@@ -983,9 +1061,30 @@
             ...siteLinks.map(site => `  ${site.key.padEnd(9, " ")} ${site.href}  - ${site.description}`)
         ].join("\n");
 
-        topbarLinks.innerHTML = siteLinks.map(site => (
-            `<a href="${escapeHtml(site.href)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(site.description)}">${escapeHtml(site.label)}</a>`
-        )).join("");
+        const topbarGroups = [
+            { type: "link", key: "home" },
+            { type: "link", key: "github" },
+            { type: "menu", label: "Blog", keys: ["blog", "thoughts"] },
+            { type: "menu", label: "Tools", keys: ["piccut", "smartchat", "ai", "invest", "skills"] },
+            { type: "menu", label: "Education", keys: ["xuptarch", "rsimu"] },
+            { type: "link", key: "bilibili" },
+            { type: "link", key: "email" }
+        ];
+        const siteByKey = Object.fromEntries(siteLinks.map(site => [site.key, site]));
+
+        function renderTopbarItem(item) {
+            if (item.type === "link") {
+                const site = siteByKey[item.key];
+                return `<a class="topbar-link" href="${escapeHtml(site.href)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(site.description)}">${escapeHtml(site.label)}</a>`;
+            }
+            const items = item.keys.map(key => {
+                const site = siteByKey[key];
+                return `<a href="${escapeHtml(site.href)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(site.description)}">${escapeHtml(site.label)}</a>`;
+            }).join("");
+            return `<span class="menu-group"><button class="menu-trigger" type="button" aria-haspopup="true">${escapeHtml(item.label)}</button><span class="menu-panel">${items}</span></span>`;
+        }
+
+        topbarLinks.innerHTML = topbarGroups.map(renderTopbarItem).join("");
 
         const PAGE_SIZE = 10;
         const BLOG_ARCHIVES_URL = `${links.blog}archives/`;

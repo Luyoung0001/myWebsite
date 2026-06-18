@@ -3,6 +3,9 @@ import fs from 'node:fs/promises';
 const requiredHtmlMarkers = [
   'class="topbar-links"',
   'class="theme-toggle"',
+  'class="menu-group"',
+  'class="menu-panel"',
+  'const topbarGroups',
   'data-theme-mode="dark"',
   'data-theme-mode="light"',
   'data-theme-mode="system"',

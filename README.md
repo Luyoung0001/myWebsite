@@ -5,6 +5,7 @@ Low-key static shell page for `luliang.online`.
 目标: 简洁操作。用接近真实 shell 的方式浏览文章、项目、搜索结果和站点入口。
 
 顶部支持三态主题切换: `dark` / `light` / `follow browser`.
+顶部导航按 `Blog` / `Tools` / `Education` 分组，下拉展示站点入口。
 
 ## Links
 
