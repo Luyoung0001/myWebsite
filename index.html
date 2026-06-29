@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <title>shell</title>
     <meta name="description" content="A quiet shell-style personal page." />
     <meta name="theme-color" content="#000000" />
@@ -977,6 +977,12 @@
 
             #terminal {
                 padding: 8px 9px;
+                font-size: 16px;
+            }
+
+            .terminal-input,
+            .input-mirror {
+                font-size: 16px;
             }
 
             .reader {
@@ -3671,26 +3677,32 @@
             focusInput();
         });
 
-        topbarLinks.addEventListener("click", event => {
+        function closeTopbarMenus() {
+            topbarLinks.querySelectorAll(".menu-group.open").forEach(item => {
+                item.classList.remove("open");
+                item.querySelector(".menu-trigger")?.setAttribute("aria-expanded", "false");
+            });
+        }
+
+        topbarLinks.addEventListener("pointerdown", event => {
             const trigger = event.target.closest(".menu-trigger");
             if (!trigger) return;
             const group = trigger.closest(".menu-group");
             const open = !group.classList.contains("open");
-            topbarLinks.querySelectorAll(".menu-group.open").forEach(item => {
-                item.classList.remove("open");
-                item.querySelector(".menu-trigger")?.setAttribute("aria-expanded", "false");
-            });
+            closeTopbarMenus();
             group.classList.toggle("open", open);
             trigger.setAttribute("aria-expanded", open ? "true" : "false");
             event.preventDefault();
+            event.stopPropagation();
         });
 
-        document.addEventListener("click", event => {
+        topbarLinks.addEventListener("click", event => {
+            if (event.target.closest(".menu-trigger")) event.preventDefault();
+        });
+
+        document.addEventListener("pointerdown", event => {
             if (event.target.closest(".menu-group")) return;
-            topbarLinks.querySelectorAll(".menu-group.open").forEach(item => {
-                item.classList.remove("open");
-                item.querySelector(".menu-trigger")?.setAttribute("aria-expanded", "false");
-            });
+            closeTopbarMenus();
         });
 
         themeButtons.forEach(button => {
@@ -3714,10 +3726,7 @@
         commandInput.addEventListener("keydown", handleKeydown);
         window.addEventListener("keydown", event => {
             if (event.key === "Escape") {
-                topbarLinks.querySelectorAll(".menu-group.open").forEach(item => {
-                    item.classList.remove("open");
-                    item.querySelector(".menu-trigger")?.setAttribute("aria-expanded", "false");
-                });
+                closeTopbarMenus();
             }
             if (!dataState.gameKeyHandler) return;
             if (event.target === commandInput) return;
