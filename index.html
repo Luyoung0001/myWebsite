@@ -173,7 +173,8 @@
 
         .menu-trigger {
             background: transparent;
-            cursor: default;
+            cursor: pointer;
+            touch-action: manipulation;
         }
 
         .menu-trigger::after {
@@ -3684,23 +3685,31 @@
             });
         }
 
-        topbarLinks.addEventListener("pointerdown", event => {
-            const trigger = event.target.closest(".menu-trigger");
-            if (!trigger) return;
+        function toggleTopbarMenu(trigger) {
             const group = trigger.closest(".menu-group");
             const open = !group.classList.contains("open");
             closeTopbarMenus();
             group.classList.toggle("open", open);
             trigger.setAttribute("aria-expanded", open ? "true" : "false");
-            event.preventDefault();
-            event.stopPropagation();
-        });
+        }
 
         topbarLinks.addEventListener("click", event => {
-            if (event.target.closest(".menu-trigger")) event.preventDefault();
+            const trigger = event.target.closest(".menu-trigger");
+            if (!trigger) return;
+            event.preventDefault();
+            event.stopPropagation();
+            toggleTopbarMenu(trigger);
         });
 
-        document.addEventListener("pointerdown", event => {
+        topbarLinks.addEventListener("keydown", event => {
+            if (event.key !== "Enter" && event.key !== " ") return;
+            const trigger = event.target.closest(".menu-trigger");
+            if (!trigger) return;
+            event.preventDefault();
+            toggleTopbarMenu(trigger);
+        });
+
+        document.addEventListener("click", event => {
             if (event.target.closest(".menu-group")) return;
             closeTopbarMenus();
         });
