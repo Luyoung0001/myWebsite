@@ -230,6 +230,10 @@
             display: block;
         }
 
+        .mobile-menu-links {
+            display: none;
+        }
+
         .menu-panel a {
             justify-content: space-between;
             width: 100%;
@@ -931,6 +935,18 @@
                 flex: 0 0 auto;
             }
 
+            .menu-group .menu-trigger,
+            .menu-group .menu-panel,
+            .menu-group .menu-backdrop {
+                display: none !important;
+            }
+
+            .mobile-menu-links {
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+            }
+
             .menu-panel {
                 position: fixed;
                 top: 44px;
@@ -1170,8 +1186,12 @@
                 const site = siteByKey[key];
                 return `<a href="${escapeHtml(site.href)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(site.description)}">${escapeHtml(site.label)}</a>`;
             }).join("");
+            const mobileItems = item.keys.map(key => {
+                const site = siteByKey[key];
+                return `<a class="topbar-link mobile-menu-link" href="${escapeHtml(site.href)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(site.description)}">${escapeHtml(site.label)}</a>`;
+            }).join("");
             const panelId = `topbar-menu-${item.id}`;
-            return `<span class="menu-group"><a class="menu-trigger" href="#${panelId}" aria-haspopup="true" aria-expanded="false">${escapeHtml(item.label)}</a><span class="menu-panel" id="${panelId}">${items}</span><a class="menu-backdrop" href="#topbar" aria-hidden="true" tabindex="-1"></a></span>`;
+            return `<span class="menu-group"><a class="menu-trigger" href="#${panelId}" aria-haspopup="true" aria-expanded="false">${escapeHtml(item.label)}</a><span class="menu-panel" id="${panelId}">${items}</span><a class="menu-backdrop" href="#topbar" aria-hidden="true" tabindex="-1"></a><span class="mobile-menu-links">${mobileItems}</span></span>`;
         }
 
         topbarLinks.innerHTML = topbarGroups.map(renderTopbarItem).join("");
