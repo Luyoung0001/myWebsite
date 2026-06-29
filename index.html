@@ -175,6 +175,8 @@
             background: transparent;
             cursor: pointer;
             touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         .menu-trigger::after {
@@ -207,12 +209,25 @@
             transition: opacity 160ms ease, transform 160ms ease;
         }
 
+        .menu-backdrop {
+            display: none;
+            position: fixed;
+            inset: 42px 0 0;
+            z-index: 19;
+            cursor: default;
+        }
+
         .menu-group:hover .menu-panel,
         .menu-group:focus-within .menu-panel,
+        .menu-panel:target,
         .menu-group.open .menu-panel {
             opacity: 1;
             transform: translateY(0);
             pointer-events: auto;
+        }
+
+        .menu-panel:target + .menu-backdrop {
+            display: block;
         }
 
         .menu-panel a {
@@ -936,6 +951,11 @@
                 pointer-events: none;
             }
 
+            .menu-backdrop {
+                inset: 44px 0 0;
+                z-index: 39;
+            }
+
             .menu-group.open .menu-panel {
                 opacity: 1;
                 transform: translateY(0);
@@ -1027,7 +1047,7 @@
 </head>
 
 <body>
-    <header class="topbar" aria-label="site navigation">
+    <header class="topbar" id="topbar" aria-label="site navigation">
         <div class="topbar-status" id="topbar-status"></div>
         <div class="topbar-actions">
             <nav class="topbar-links" id="topbar-links"></nav>
@@ -1133,9 +1153,9 @@
         const topbarGroups = [
             { type: "link", key: "home" },
             { type: "link", key: "github" },
-            { type: "menu", label: "Blog", keys: ["blog", "thoughts"] },
-            { type: "menu", label: "Tools", keys: ["piccut", "smartchat", "ai", "invest", "skills"] },
-            { type: "menu", label: "Education", keys: ["xuptarch", "rsimu", "minillm", "minicompi"] },
+            { type: "menu", id: "blog", label: "Blog", keys: ["blog", "thoughts"] },
+            { type: "menu", id: "tools", label: "Tools", keys: ["piccut", "smartchat", "ai", "invest", "skills"] },
+            { type: "menu", id: "education", label: "Education", keys: ["xuptarch", "rsimu", "minillm", "minicompi"] },
             { type: "link", key: "bilibili" },
             { type: "link", key: "email" }
         ];
@@ -1150,7 +1170,8 @@
                 const site = siteByKey[key];
                 return `<a href="${escapeHtml(site.href)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(site.description)}">${escapeHtml(site.label)}</a>`;
             }).join("");
-            return `<span class="menu-group"><button class="menu-trigger" type="button" aria-haspopup="true" aria-expanded="false">${escapeHtml(item.label)}</button><span class="menu-panel">${items}</span></span>`;
+            const panelId = `topbar-menu-${item.id}`;
+            return `<span class="menu-group"><a class="menu-trigger" href="#${panelId}" aria-haspopup="true" aria-expanded="false">${escapeHtml(item.label)}</a><span class="menu-panel" id="${panelId}">${items}</span><a class="menu-backdrop" href="#topbar" aria-hidden="true" tabindex="-1"></a></span>`;
         }
 
         topbarLinks.innerHTML = topbarGroups.map(renderTopbarItem).join("");
@@ -3684,48 +3705,39 @@
                 item.classList.remove("open");
                 item.querySelector(".menu-trigger")?.setAttribute("aria-expanded", "false");
             });
+            if (location.hash.startsWith("#topbar-menu-") || location.hash === "#topbar") {
+                history.replaceState(null, "", `${location.pathname}${location.search}`);
+            }
         }
 
-        let lastTopbarTouchTime = 0;
-
-        function toggleTopbarMenu(trigger) {
-            const group = trigger.closest(".menu-group");
-            const open = !group.classList.contains("open");
-            closeTopbarMenus();
-            group.classList.toggle("open", open);
-            trigger.setAttribute("aria-expanded", open ? "true" : "false");
+        function syncTopbarMenu() {
+            topbarLinks.querySelectorAll(".menu-group").forEach(group => {
+                const trigger = group.querySelector(".menu-trigger");
+                const panel = group.querySelector(".menu-panel");
+                const open = Boolean(panel && `#${panel.id}` === location.hash);
+                group.classList.toggle("open", open);
+                trigger?.setAttribute("aria-expanded", open ? "true" : "false");
+            });
         }
 
         topbarLinks.addEventListener("click", event => {
             const trigger = event.target.closest(".menu-trigger");
             if (!trigger) return;
-            event.preventDefault();
-            event.stopPropagation();
-            if (Date.now() - lastTopbarTouchTime < 600) return;
-            toggleTopbarMenu(trigger);
-        });
-
-        topbarLinks.addEventListener("touchend", event => {
-            const trigger = event.target.closest(".menu-trigger");
-            if (!trigger) return;
-            lastTopbarTouchTime = Date.now();
-            event.preventDefault();
-            event.stopPropagation();
-            toggleTopbarMenu(trigger);
-        }, { passive: false });
-
-        topbarLinks.addEventListener("keydown", event => {
-            if (event.key !== "Enter" && event.key !== " ") return;
-            const trigger = event.target.closest(".menu-trigger");
-            if (!trigger) return;
-            event.preventDefault();
-            toggleTopbarMenu(trigger);
+            const alreadyOpen = trigger.getAttribute("aria-expanded") === "true";
+            if (alreadyOpen) {
+                event.preventDefault();
+                closeTopbarMenus();
+                return;
+            }
+            requestAnimationFrame(syncTopbarMenu);
         });
 
         document.addEventListener("click", event => {
             if (event.target.closest(".menu-group")) return;
             closeTopbarMenus();
         });
+
+        window.addEventListener("hashchange", syncTopbarMenu);
 
         themeButtons.forEach(button => {
             button.addEventListener("click", () => {
