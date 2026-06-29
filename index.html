@@ -208,7 +208,8 @@
         }
 
         .menu-group:hover .menu-panel,
-        .menu-group:focus-within .menu-panel {
+        .menu-group:focus-within .menu-panel,
+        .menu-group.open .menu-panel {
             opacity: 1;
             transform: translateY(0);
             pointer-events: auto;
@@ -3685,6 +3686,8 @@
             });
         }
 
+        let lastTopbarTouchTime = 0;
+
         function toggleTopbarMenu(trigger) {
             const group = trigger.closest(".menu-group");
             const open = !group.classList.contains("open");
@@ -3698,8 +3701,18 @@
             if (!trigger) return;
             event.preventDefault();
             event.stopPropagation();
+            if (Date.now() - lastTopbarTouchTime < 600) return;
             toggleTopbarMenu(trigger);
         });
+
+        topbarLinks.addEventListener("touchend", event => {
+            const trigger = event.target.closest(".menu-trigger");
+            if (!trigger) return;
+            lastTopbarTouchTime = Date.now();
+            event.preventDefault();
+            event.stopPropagation();
+            toggleTopbarMenu(trigger);
+        }, { passive: false });
 
         topbarLinks.addEventListener("keydown", event => {
             if (event.key !== "Enter" && event.key !== " ") return;
