@@ -862,77 +862,134 @@
         @media (max-width: 640px) {
             html,
             body {
-                font-size: 14px;
+                font-size: 13px;
             }
 
             .topbar {
-                align-items: flex-start;
-                flex-direction: column;
-                gap: 6px;
-                padding: 8px 10px;
+                min-height: 38px;
+                align-items: center;
+                gap: 8px;
+                padding: 6px 8px;
+                overflow: visible;
             }
 
-            .topbar-links {
-                justify-content: flex-start;
-                width: 100%;
+            .topbar-status {
+                display: none;
             }
 
             .topbar-actions {
                 width: 100%;
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 6px;
+                min-width: 0;
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) auto;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .topbar-links {
+                width: 100%;
+                min-width: 0;
+                flex-wrap: nowrap;
+                justify-content: flex-start;
+                overflow-x: auto;
+                overflow-y: visible;
+                scrollbar-width: none;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .topbar-links::-webkit-scrollbar {
+                display: none;
             }
 
             .topbar-link,
             .menu-trigger,
             .menu-panel a {
-                padding: 0 7px;
+                min-height: 30px;
+                padding: 0 8px;
+                white-space: nowrap;
             }
 
             .menu-group {
-                display: grid;
+                display: inline-flex;
+                flex: 0 0 auto;
             }
 
             .menu-panel {
-                position: static;
+                position: fixed;
+                top: 44px;
+                left: 8px;
+                right: 8px;
+                z-index: 40;
                 min-width: 0;
-                padding: 2px 0 0 1ch;
-                border: 0;
-                background: transparent;
-                box-shadow: none;
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 4px;
+                padding: 8px;
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                background: var(--panel-solid);
+                box-shadow: var(--shadow);
+                opacity: 0;
+                transform: translateY(-4px);
+                pointer-events: none;
+            }
+
+            .menu-group.open .menu-panel {
                 opacity: 1;
-                transform: none;
+                transform: translateY(0);
                 pointer-events: auto;
+            }
+
+            .menu-panel a {
+                justify-content: flex-start;
+                min-width: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .theme-toggle {
+                justify-self: end;
+                gap: 1px;
+                padding: 1px;
+            }
+
+            .theme-button {
+                min-width: 28px;
+                min-height: 28px;
+                padding: 0 6px;
             }
 
             .workspace,
             .workspace.reader-open {
                 grid-template-columns: minmax(0, 1fr);
-                gap: 10px;
-                padding: 10px;
-            }
-
-            .workspace {
-                grid-template-rows: minmax(0, 1fr) minmax(0, 0fr);
-            }
-
-            .workspace.reader-open {
-                grid-template-rows: minmax(42svh, 1fr) minmax(0, 58svh);
+                grid-template-rows: minmax(0, 1fr);
+                gap: 0;
+                padding: 8px;
+                position: relative;
             }
 
             .terminal-frame,
             .workspace.reader-open .terminal-frame {
                 width: 100%;
                 justify-self: stretch;
+                border-radius: 7px;
             }
 
             #terminal {
-                padding: 9px 10px;
+                padding: 8px 9px;
             }
 
             .reader {
-                transform: translateY(16px);
+                position: absolute;
+                inset: 8px;
+                z-index: 30;
+                height: auto;
+                transform: translateY(12px);
+                border-radius: 7px;
+            }
+
+            .workspace.reader-open .reader {
+                transform: translateY(0);
             }
 
             .help-command {
@@ -954,6 +1011,7 @@
             }
 
             .reader-head {
+                min-height: 38px;
                 grid-template-columns: minmax(0, 1fr) auto auto;
             }
         }
@@ -1084,7 +1142,7 @@
                 const site = siteByKey[key];
                 return `<a href="${escapeHtml(site.href)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(site.description)}">${escapeHtml(site.label)}</a>`;
             }).join("");
-            return `<span class="menu-group"><button class="menu-trigger" type="button" aria-haspopup="true">${escapeHtml(item.label)}</button><span class="menu-panel">${items}</span></span>`;
+            return `<span class="menu-group"><button class="menu-trigger" type="button" aria-haspopup="true" aria-expanded="false">${escapeHtml(item.label)}</button><span class="menu-panel">${items}</span></span>`;
         }
 
         topbarLinks.innerHTML = topbarGroups.map(renderTopbarItem).join("");
@@ -3613,6 +3671,28 @@
             focusInput();
         });
 
+        topbarLinks.addEventListener("click", event => {
+            const trigger = event.target.closest(".menu-trigger");
+            if (!trigger) return;
+            const group = trigger.closest(".menu-group");
+            const open = !group.classList.contains("open");
+            topbarLinks.querySelectorAll(".menu-group.open").forEach(item => {
+                item.classList.remove("open");
+                item.querySelector(".menu-trigger")?.setAttribute("aria-expanded", "false");
+            });
+            group.classList.toggle("open", open);
+            trigger.setAttribute("aria-expanded", open ? "true" : "false");
+            event.preventDefault();
+        });
+
+        document.addEventListener("click", event => {
+            if (event.target.closest(".menu-group")) return;
+            topbarLinks.querySelectorAll(".menu-group.open").forEach(item => {
+                item.classList.remove("open");
+                item.querySelector(".menu-trigger")?.setAttribute("aria-expanded", "false");
+            });
+        });
+
         themeButtons.forEach(button => {
             button.addEventListener("click", () => {
                 applyTheme(button.dataset.themeMode, true);
@@ -3633,6 +3713,12 @@
         commandInput.addEventListener("input", updateInputMirror);
         commandInput.addEventListener("keydown", handleKeydown);
         window.addEventListener("keydown", event => {
+            if (event.key === "Escape") {
+                topbarLinks.querySelectorAll(".menu-group.open").forEach(item => {
+                    item.classList.remove("open");
+                    item.querySelector(".menu-trigger")?.setAttribute("aria-expanded", "false");
+                });
+            }
             if (!dataState.gameKeyHandler) return;
             if (event.target === commandInput) return;
             handleKeydown(event);
