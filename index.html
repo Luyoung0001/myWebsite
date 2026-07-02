@@ -295,6 +295,10 @@
             gap: 14px;
         }
 
+        .workspace.reader-open.minesweeper-open {
+            grid-template-columns: minmax(240px, .35fr) minmax(760px, 1.65fr);
+        }
+
         .terminal-frame,
         .reader {
             min-width: 0;
@@ -709,6 +713,17 @@
             margin-right: 6px;
         }
 
+        .workspace.minesweeper-open .game-shell > .doc-kicker,
+        .workspace.minesweeper-open .game-shell > h1,
+        .workspace.minesweeper-open .game-subtitle,
+        .workspace.minesweeper-open .game-controls {
+            display: none;
+        }
+
+        .workspace.minesweeper-open .reader-body {
+            padding-top: 10px;
+        }
+
         .game-stage {
             border: 1px solid #202020;
             border-radius: 6px;
@@ -799,6 +814,160 @@
         .tile-2048[data-value="512"] { background: #4f3a7b; color: #efe4ff; }
         .tile-2048[data-value="1024"] { background: #6a2f7b; color: #fde6ff; }
         .tile-2048[data-value="2048"] { background: #8a7a16; color: #fff8cf; }
+
+        .minesweeper-shell {
+            display: grid;
+            gap: 10px;
+            color: #17202a;
+        }
+
+        .minesweeper-stage {
+            border-color: #c4ccd8;
+            background: #eef2f7;
+            color: #17202a;
+        }
+
+        .minesweeper-stage .game-hud {
+            color: #17202a;
+        }
+
+        .minesweeper-stage .game-status {
+            color: #3d4a5c;
+        }
+
+        .minesweeper-topline {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 8px 10px;
+            border: 2px solid #c4ccd8;
+            border-top-color: #ffffff;
+            border-left-color: #ffffff;
+            background: #dce3ed;
+            font-weight: 700;
+        }
+
+        .minesweeper-restart {
+            min-width: 32px;
+            min-height: 30px;
+            border: 2px solid #aeb8c6;
+            border-top-color: #ffffff;
+            border-left-color: #ffffff;
+            border-radius: 4px;
+            background: #f6f8fb;
+            color: #17202a;
+            font: 700 1rem/1 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+            cursor: pointer;
+        }
+
+        .minesweeper-restart:active {
+            border-color: #ffffff;
+            border-top-color: #aeb8c6;
+            border-left-color: #aeb8c6;
+        }
+
+        .minesweeper-board-wrap {
+            max-width: 100%;
+            overflow: auto;
+            padding-bottom: 4px;
+        }
+
+        .minesweeper-resizer {
+            width: min(100%, 860px);
+            min-width: min(100%, 520px);
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0 12px 12px 0;
+            resize: horizontal;
+            overflow: auto;
+            box-sizing: border-box;
+            container-type: inline-size;
+        }
+
+        .minesweeper-resizer::after {
+            content: "";
+            display: block;
+            width: 18px;
+            height: 18px;
+            margin: -18px 0 0 auto;
+            background:
+                linear-gradient(135deg, transparent 45%, #8b96a6 46%, #8b96a6 54%, transparent 55%),
+                linear-gradient(135deg, transparent 62%, #8b96a6 63%, #8b96a6 70%, transparent 71%);
+            opacity: .75;
+        }
+
+        .minesweeper-board {
+            --mine-cols: 32;
+            display: grid;
+            grid-template-columns: repeat(var(--mine-cols), minmax(0, 1fr));
+            gap: 2px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 6px;
+            border: 2px solid #c4ccd8;
+            border-top-color: #ffffff;
+            border-left-color: #ffffff;
+            background: #cfd7e3;
+        }
+
+        .mine-cell {
+            aspect-ratio: 1;
+            min-width: 0;
+            display: grid;
+            place-items: center;
+            border: 2px solid #aab4c2;
+            border-top-color: #ffffff;
+            border-left-color: #ffffff;
+            border-radius: 2px;
+            background: #e8edf4;
+            color: #17202a;
+            font: 900 clamp(.75rem, 2.6cqw, 1.35rem)/1 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+            overflow: hidden;
+            padding: 0;
+            cursor: pointer;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        .mine-cell:hover,
+        .mine-cell.cursor {
+            outline: 2px solid #2f7df6;
+            outline-offset: -2px;
+        }
+
+        .mine-cell.revealed {
+            background: #f8fafc;
+            border: 1px solid #c4ccd8;
+            outline: none;
+            cursor: default;
+        }
+
+        .mine-cell.flagged {
+            color: #d71920;
+        }
+
+        .mine-cell.question {
+            color: #8a5a00;
+        }
+
+        .mine-cell.mine-hit {
+            background: #ff8f8f;
+            color: #111827;
+        }
+
+        .mine-cell.mine-safe {
+            color: #111827;
+        }
+
+        .mine-cell[data-count="1"] { color: #0057d8; }
+        .mine-cell[data-count="2"] { color: #168320; }
+        .mine-cell[data-count="3"] { color: #d71920; }
+        .mine-cell[data-count="4"] { color: #1d2b8f; }
+        .mine-cell[data-count="5"] { color: #8a2b16; }
+        .mine-cell[data-count="6"] { color: #008b8b; }
+        .mine-cell[data-count="7"] { color: #111827; }
+        .mine-cell[data-count="8"] { color: #6b7280; }
 
         .runner-canvas {
             width: min(100%, 620px);
@@ -998,7 +1167,8 @@
             }
 
             .workspace,
-            .workspace.reader-open {
+            .workspace.reader-open,
+            .workspace.reader-open.minesweeper-open {
                 grid-template-columns: minmax(0, 1fr);
                 grid-template-rows: minmax(0, 1fr);
                 gap: 0;
@@ -1158,7 +1328,7 @@
             "  google <q> / bing <q>        搜索网页并用编号打开结果",
             "  jslinux                     打开 x86_64 Linux Console",
             "  author                      查看作者介绍",
-            "  games / snake / 2048 / mario 终端小游戏",
+            "  games / snake / 2048 / mario / minesweeper 终端小游戏",
             "  neofetch                    浏览器环境信息",
             "  ls links / cat links/<name>  查看站点入口",
             "",
@@ -1298,7 +1468,7 @@
         const commands = [
             "help", "clear", "pwd", "ls", "cd", "cat", "echo", "printf", "date",
             "whoami", "hostname", "uname", "id", "history", "env", "posts", "repos", "gitrepo",
-            "github", "web", "google", "bing", "being", "jslinux", "author", "games", "snake", "2048", "mario", "neofetch",
+            "github", "web", "google", "bing", "being", "jslinux", "author", "games", "snake", "2048", "mario", "minesweeper", "neofetch",
             "next", "prev", "open", "close", "xdg-open", "exit"
         ];
 
@@ -1393,6 +1563,7 @@
         function setReaderLoading(title, url) {
             state.readerOpen = true;
             workspace.classList.add("reader-open");
+            workspace.classList.remove("minesweeper-open");
             reader.setAttribute("aria-hidden", "false");
             readerTitle.textContent = title;
             readerLink.href = url || "#";
@@ -1435,6 +1606,7 @@
             disposeGame();
             state.readerOpen = false;
             workspace.classList.remove("reader-open");
+            workspace.classList.remove("minesweeper-open");
             reader.setAttribute("aria-hidden", "true");
             setTimeout(() => {
                 if (!state.readerOpen) {
@@ -1493,6 +1665,7 @@
                         <li><code>snake</code> classic grid snake in the reader pane</li>
                         <li><code>2048</code> slide tiles with arrow keys</li>
                         <li><code>mario</code> side runner inspired by platform games</li>
+                        <li><code>minesweeper</code> classic minesweeper on one large board</li>
                     </ul>
                 </section>
             `);
@@ -1682,7 +1855,7 @@
                     `<span class="cmd-command">GPU</span>: ${escapeHtml(info.gpu)}`,
                     `<span class="cmd-command">Shell</span>: custom terminal`,
                     `<span class="cmd-command">Reader</span>: posts / repos / web search`,
-                    `<span class="cmd-command">Games</span>: snake / 2048 / mario`,
+                    `<span class="cmd-command">Games</span>: snake / 2048 / mario / minesweeper`,
                     `<span class="dim">host pc name is unavailable in browser sandbox</span>`
                 ];
                 appendLine(lines.join("\n"));
@@ -1968,6 +2141,322 @@
                 }
                 return false;
             });
+            focus?.focus({ preventScroll: true });
+        }
+
+        function launchMinesweeper() {
+            const settings = { width: 32, height: 19, mines: 125 };
+            const { root, status, focus } = startGameShell(
+                "minesweeper",
+                "terminal game",
+                ["Left open", "Right/F flag", "Double/C chord", "R restart", "Esc close"],
+                "local shell game"
+            );
+            root.closest(".game-stage")?.classList.add("minesweeper-stage");
+            workspace.classList.add("minesweeper-open");
+            const shell = document.createElement("div");
+            shell.className = "minesweeper-shell";
+            shell.innerHTML = `
+                <div class="minesweeper-topline">
+                    <span>32 x 19 / 125 mines</span>
+                    <button class="minesweeper-restart" id="mine-restart" type="button" title="restart">R</button>
+                </div>
+                <div class="minesweeper-board-wrap">
+                    <div class="minesweeper-resizer">
+                        <div class="minesweeper-board" id="mine-board" role="grid" aria-label="minesweeper board"></div>
+                    </div>
+                </div>
+            `;
+            root.appendChild(shell);
+
+            const restartButton = shell.querySelector("#mine-restart");
+            const board = shell.querySelector("#mine-board");
+            restartButton.addEventListener("keydown", event => {
+                event.stopPropagation();
+            });
+
+            let width = settings.width;
+            let height = settings.height;
+            let mines = settings.mines;
+            let cells = [];
+            let buttons = [];
+            let firstMove = true;
+            let stateText = "ready";
+            let flags = 0;
+            let revealed = 0;
+            let cursor = { x: 0, y: 0 };
+            let startedAt = 0;
+            let elapsed = 0;
+            let timer = null;
+
+            function indexOf(x, y) {
+                return y * width + x;
+            }
+
+            function cellAt(x, y) {
+                if (x < 0 || y < 0 || x >= width || y >= height) return null;
+                return cells[indexOf(x, y)];
+            }
+
+            function neighbors(cell) {
+                const items = [];
+                for (let y = cell.y - 1; y <= cell.y + 1; y += 1) {
+                    for (let x = cell.x - 1; x <= cell.x + 1; x += 1) {
+                        if (x === cell.x && y === cell.y) continue;
+                        const next = cellAt(x, y);
+                        if (next) items.push(next);
+                    }
+                }
+                return items;
+            }
+
+            function stopTimer() {
+                if (timer) clearInterval(timer);
+                timer = null;
+            }
+
+            function startTimer() {
+                if (timer) return;
+                startedAt = Date.now() - elapsed * 1000;
+                timer = setInterval(() => {
+                    elapsed = Math.floor((Date.now() - startedAt) / 1000);
+                    paint();
+                }, 1000);
+            }
+
+            function placeMines(safeCell) {
+                const safeZone = new Set([indexOf(safeCell.x, safeCell.y)]);
+                neighbors(safeCell).forEach(item => safeZone.add(indexOf(item.x, item.y)));
+                let slots = cells.filter(cell => !safeZone.has(indexOf(cell.x, cell.y)));
+                if (slots.length < mines) {
+                    slots = cells.filter(cell => cell !== safeCell);
+                }
+                for (let i = slots.length - 1; i > 0; i -= 1) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [slots[i], slots[j]] = [slots[j], slots[i]];
+                }
+                slots.slice(0, mines).forEach(cell => {
+                    cell.mine = true;
+                });
+                cells.forEach(cell => {
+                    cell.count = cell.mine ? 0 : neighbors(cell).filter(item => item.mine).length;
+                });
+            }
+
+            function revealMines(hitCell) {
+                cells.forEach(cell => {
+                    if (cell.mine) cell.revealed = true;
+                });
+                if (hitCell) hitCell.hit = true;
+            }
+
+            function checkWin() {
+                if (stateText === "lost") return;
+                if (revealed === width * height - mines) {
+                    stateText = "cleared";
+                    stopTimer();
+                    cells.forEach(cell => {
+                        if (cell.mine && cell.mark !== 1) {
+                            cell.mark = 1;
+                            flags += 1;
+                        }
+                    });
+                }
+            }
+
+            function revealCell(cell) {
+                if (!cell || stateText === "lost" || stateText === "cleared" || cell.revealed || cell.mark === 1) return;
+                if (firstMove) {
+                    placeMines(cell);
+                    firstMove = false;
+                    stateText = "running";
+                    startTimer();
+                }
+                if (cell.mine) {
+                    cell.revealed = true;
+                    stateText = "lost";
+                    stopTimer();
+                    revealMines(cell);
+                    paint();
+                    return;
+                }
+                const stack = [cell];
+                while (stack.length) {
+                    const current = stack.pop();
+                    if (!current || current.revealed || current.mark === 1 || current.mine) continue;
+                    current.revealed = true;
+                    current.mark = 0;
+                    revealed += 1;
+                    if (current.count === 0) {
+                        neighbors(current).forEach(next => {
+                            if (!next.revealed && next.mark !== 1) stack.push(next);
+                        });
+                    }
+                }
+                checkWin();
+                paint();
+            }
+
+            function cycleMark(cell) {
+                if (!cell || cell.revealed || stateText === "lost" || stateText === "cleared") return;
+                if (cell.mark === 0) {
+                    cell.mark = 1;
+                    flags += 1;
+                } else if (cell.mark === 1) {
+                    cell.mark = 2;
+                    flags -= 1;
+                } else {
+                    cell.mark = 0;
+                }
+                paint();
+            }
+
+            function chordCell(cell) {
+                if (!cell || !cell.revealed || cell.count === 0 || stateText === "lost" || stateText === "cleared") return;
+                const around = neighbors(cell);
+                const flagCount = around.filter(item => item.mark === 1).length;
+                if (flagCount !== cell.count) return;
+                around.forEach(item => {
+                    if (!item.revealed && item.mark !== 1) revealCell(item);
+                });
+                paint();
+            }
+
+            function setCursor(cell) {
+                if (!cell) return;
+                cursor = { x: cell.x, y: cell.y };
+                paint();
+            }
+
+            function paint() {
+                board.style.setProperty("--mine-cols", String(width));
+                cells.forEach(cell => {
+                    const button = buttons[indexOf(cell.x, cell.y)];
+                    button.className = "mine-cell";
+                    button.textContent = "";
+                    button.dataset.count = String(cell.revealed ? cell.count : 0);
+                    button.setAttribute("aria-label", `cell ${cell.x + 1},${cell.y + 1}`);
+                    button.classList.toggle("cursor", cell.x === cursor.x && cell.y === cursor.y);
+                    if (cell.revealed) {
+                        button.classList.add("revealed");
+                        if (cell.mine) {
+                            button.textContent = "*";
+                            button.classList.add(cell.hit ? "mine-hit" : "mine-safe");
+                        } else if (cell.count > 0) {
+                            button.textContent = String(cell.count);
+                        }
+                    } else if (cell.mark === 1) {
+                        button.textContent = "⚑";
+                        button.classList.add("flagged");
+                    } else if (cell.mark === 2) {
+                        button.textContent = "?";
+                        button.classList.add("question");
+                    }
+                });
+                status.textContent = `mines ${Math.max(0, mines - flags)}  |  time ${elapsed}s  |  ${stateText}`;
+            }
+
+            function buildBoard() {
+                stopTimer();
+                ({ width, height, mines } = settings);
+                cells = [];
+                buttons = [];
+                firstMove = true;
+                stateText = "ready";
+                flags = 0;
+                revealed = 0;
+                elapsed = 0;
+                cursor = { x: 0, y: 0 };
+                board.innerHTML = "";
+                for (let y = 0; y < height; y += 1) {
+                    for (let x = 0; x < width; x += 1) {
+                        const cell = { x, y, mine: false, count: 0, revealed: false, mark: 0, hit: false };
+                        const button = document.createElement("button");
+                        button.className = "mine-cell";
+                        button.type = "button";
+                        button.setAttribute("role", "gridcell");
+                        button.addEventListener("click", event => {
+                            focus?.focus({ preventScroll: true });
+                            setCursor(cell);
+                            if (event.shiftKey) cycleMark(cell);
+                            else if (cell.revealed) chordCell(cell);
+                            else revealCell(cell);
+                        });
+                        button.addEventListener("contextmenu", event => {
+                            event.preventDefault();
+                            focus?.focus({ preventScroll: true });
+                            setCursor(cell);
+                            cycleMark(cell);
+                        });
+                        button.addEventListener("dblclick", event => {
+                            event.preventDefault();
+                            focus?.focus({ preventScroll: true });
+                            setCursor(cell);
+                            chordCell(cell);
+                        });
+                        button.addEventListener("auxclick", event => {
+                            if (event.button !== 1) return;
+                            event.preventDefault();
+                            focus?.focus({ preventScroll: true });
+                            setCursor(cell);
+                            chordCell(cell);
+                        });
+                        cells.push(cell);
+                        buttons.push(button);
+                        board.appendChild(button);
+                    }
+                }
+                paint();
+            }
+
+            restartButton.addEventListener("click", () => {
+                buildBoard();
+                focus?.focus({ preventScroll: true });
+            });
+
+            buildBoard();
+            setGameHandler(event => {
+                const key = event.key.toLowerCase();
+                const current = cellAt(cursor.x, cursor.y);
+                if (event.key === "ArrowUp" || event.key === "ArrowDown" || event.key === "ArrowLeft" || event.key === "ArrowRight") {
+                    const delta = {
+                        ArrowUp: { x: 0, y: -1 },
+                        ArrowDown: { x: 0, y: 1 },
+                        ArrowLeft: { x: -1, y: 0 },
+                        ArrowRight: { x: 1, y: 0 }
+                    }[event.key];
+                    setCursor(cellAt(Math.min(width - 1, Math.max(0, cursor.x + delta.x)), Math.min(height - 1, Math.max(0, cursor.y + delta.y))));
+                    event.preventDefault();
+                    return true;
+                }
+                if (event.code === "Space" || event.key === "Enter") {
+                    if (current?.revealed) chordCell(current);
+                    else revealCell(current);
+                    event.preventDefault();
+                    return true;
+                }
+                if (key === "f") {
+                    cycleMark(current);
+                    event.preventDefault();
+                    return true;
+                }
+                if (key === "c") {
+                    chordCell(current);
+                    event.preventDefault();
+                    return true;
+                }
+                if (key === "r") {
+                    buildBoard();
+                    event.preventDefault();
+                    return true;
+                }
+                if (event.key === "Escape") {
+                    closeReader();
+                    event.preventDefault();
+                    return true;
+                }
+                return false;
+            }, stopTimer);
             focus?.focus({ preventScroll: true });
         }
 
@@ -2884,6 +3373,7 @@
                     ["snake", "play snake in the reader pane"],
                     ["2048", "play 2048 in the reader pane"],
                     ["mario", "play a side runner in the reader pane"],
+                    ["minesweeper", "play classic minesweeper"],
                     ["neofetch", "render browser environment info"],
                     ["next / prev", "page the last listing"],
                     ["open post <id>", "render a blog post in the right pane"],
@@ -3033,7 +3523,7 @@
             },
             games() {
                 renderGamesIndex();
-                appendText("games: snake  2048  mario");
+                appendText("games: snake  2048  mario  minesweeper");
             },
             snake() {
                 launchSnake();
@@ -3046,6 +3536,10 @@
             mario() {
                 launchMario();
                 appendText("game: mario");
+            },
+            minesweeper() {
+                launchMinesweeper();
+                appendText("game: minesweeper");
             },
             async neofetch() {
                 await renderNeofetch();

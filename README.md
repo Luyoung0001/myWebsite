@@ -44,6 +44,7 @@ games
 snake
 2048
 mario
+minesweeper
 neofetch
 jslinux
 author
